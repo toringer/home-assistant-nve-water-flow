@@ -1,0 +1,48 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "api_key": "NVE API Key",
+          "scan_interval": "Update Interval (seconds)"
+        },
+        "description": "Enter your NVE Hydrological API key and update interval.",
+        "title": "NVE Water Flow Configuration"
+      },
+      "stations": {
+        "data": {
+          "station_names": "Station Names (one per line)"
+        },
+        "description": "Enter the names of the NVE stations you want to monitor. Each name should be on a separate line.",
+        "title": "Configure Stations"
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to NVE API",
+      "invalid_api_key": "Invalid API key",
+      "invalid_station": "Invalid station name",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Update Interval (seconds)"
+        },
+        "description": "Configure the update interval for water flow data.",
+        "title": "Options"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "nve_water_flow": {
+        "name": "Water Flow"
+      }
+    }
+  }
+}
