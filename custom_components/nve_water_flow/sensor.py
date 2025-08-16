@@ -38,7 +38,6 @@ from .const import (
     DOMAIN,
     SENSOR_LAST_UPDATE,
     SENSOR_WATER_FLOW,
-    SENSOR_WATER_FLOW_UNIT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -163,14 +162,12 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
         # Set name
         if sensor_type == SENSOR_WATER_FLOW:
             self._attr_name = f"{station_name} Water Flow"
-        elif sensor_type == SENSOR_WATER_FLOW_UNIT:
-            self._attr_name = f"{station_name} Water Flow Unit"
         elif sensor_type == SENSOR_LAST_UPDATE:
             self._attr_name = f"{station_name} Last Update"
 
         # Set device class and state class for water flow sensor
         if sensor_type == SENSOR_WATER_FLOW:
-            self._attr_device_class = SensorDeviceClass.WATER
+            self._attr_device_class = SensorDeviceClass.VOLUME_FLOW_RATE
             self._attr_state_class = SensorStateClass.MEASUREMENT
             self._attr_native_unit_of_measurement = UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND
 
@@ -202,8 +199,6 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
 
         if self.sensor_type == SENSOR_WATER_FLOW:
             return water_flow_data.get("value")
-        elif self.sensor_type == SENSOR_WATER_FLOW_UNIT:
-            return water_flow_data.get("unit")
         elif self.sensor_type == SENSOR_LAST_UPDATE:
             time_str = water_flow_data.get("time")
             if time_str:
