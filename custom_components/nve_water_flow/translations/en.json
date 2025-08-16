@@ -4,7 +4,7 @@
       "user": {
         "data": {
           "api_key": "NVE API Key",
-          "scan_interval": "Update Interval (seconds)"
+          "scan_interval": "Update interval (seconds)"
         },
         "description": "Enter your NVE Hydrological API key and update interval.",
         "title": "NVE Water Flow Configuration"
@@ -31,7 +31,7 @@
     "step": {
       "init": {
         "data": {
-          "scan_interval": "Update Interval (seconds)"
+          "scan_interval": "Update interval (seconds)"
         },
         "description": "Configure the update interval for water flow data.",
         "title": "Options"
@@ -41,7 +41,7 @@
   "entity": {
     "sensor": {
       "nve_water_flow": {
-        "name": "Water Flow"
+        "name": "Water flow"
       }
     }
   }

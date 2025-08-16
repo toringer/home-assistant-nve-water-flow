@@ -1,6 +1,7 @@
 """Constants for the NVE Water Flow integration."""
 
 DOMAIN = "nve_water_flow"
+VERSION = "0.1.0"
 
 # Configuration keys
 CONF_API_KEY = "api_key"
@@ -8,7 +9,7 @@ CONF_STATIONS = "stations"
 CONF_SCAN_INTERVAL = "scan_interval"
 
 # Default values
-DEFAULT_SCAN_INTERVAL = 300  # 5 minutes
+DEFAULT_SCAN_INTERVAL = 3600  # 60 minutes
 
 # API configuration
 NVE_API_BASE_URL = "https://hydapi.nve.no/api/v1"
@@ -25,5 +26,4 @@ ATTR_LAST_UPDATE = "last_update"
 
 # Sensor names
 SENSOR_WATER_FLOW = "water_flow"
-SENSOR_WATER_FLOW_UNIT = "water_flow_unit"
 SENSOR_LAST_UPDATE = "last_update"

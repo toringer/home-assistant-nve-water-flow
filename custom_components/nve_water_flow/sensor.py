@@ -38,6 +38,7 @@ from .const import (
     DOMAIN,
     SENSOR_LAST_UPDATE,
     SENSOR_WATER_FLOW,
+    VERSION
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -159,6 +160,9 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
         # Set unique ID
         self._attr_unique_id = f"{station_name}_{sensor_type}"
 
+        # Set attribution for all sensors
+        self._attr_attribution = "Data provided by NVE Hydrological API"
+
         # Set name
         if sensor_type == SENSOR_WATER_FLOW:
             self._attr_name = f"{station_name} Water Flow"
@@ -253,5 +257,6 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
         return {
             "identifiers": {(DOMAIN, self.coordinator.config_entry.entry_id)},
             "name": self.station_name,
-            "manufacturer": "NVE",
+            "model": VERSION,
+            "manufacturer": "Norges vassdrags- og energidirektorat",
         }
