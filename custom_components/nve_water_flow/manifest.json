@@ -3,7 +3,7 @@
   "name": "NVE Water Flow",
   "documentation": "https://github.com/your-username/home-assistant-water-flow",
   "dependencies": [],
-  "codeowners": ["@your-username"],
+  "codeowners": ["@toringer"],
   "requirements": ["aiohttp>=3.8.0"],
   "version": "1.0.0",
   "iot_class": "cloud_polling",
