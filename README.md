@@ -1,3 +1,7 @@
+[![GitHub Release][releases-shield]][releases]
+[![Total downloads][total-downloads-shield]][total-downloads]
+[![Latest release downloads][latest-release-downloads-shield]][latest-release-downloads]
+
 # Home Assistant NVE Water Flow Component
 
 A custom Home Assistant component for monitoring water flow data from Norwegian Water Resources and Energy Directorate (NVE) stations using their Hydrological API.
