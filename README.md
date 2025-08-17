@@ -36,10 +36,10 @@ This component is not yet available in HACS, but manual installation is recommen
 
 ### Configuration Options
 
-| Option | Type | Required | Default | Description |
-|--------|------|----------|---------|-------------|
-| `api_key` | string | yes | - | Your NVE Hydrological API key |
-| `station id` | string | yes | - | Station id to monitor |
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `api_key` | string | yes | Your NVE Hydrological API key |
+| `station id` | string | yes | Station id to monitor |
 
 
 
