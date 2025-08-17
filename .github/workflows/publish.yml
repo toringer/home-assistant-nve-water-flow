@@ -44,7 +44,7 @@ jobs:
       - name: 📦 ZIP Dir
         if: ${{ github.event_name == 'release' }}
         run: |
-          pwd
+          ls -l
           cd ${{ github.workspace }}/custom_components/home-assistant-nve-water-flow
           zip home-assistant-nve-water-flow.zip -r ./
 
