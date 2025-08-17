@@ -38,7 +38,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         with:
           name: nve-water-flow
-          path: ${{ github.workspace }}/custom_components/home-assistant-nve-water-flow
+          path: ${{ github.workspace }}/custom_components/nve_water_flow
 
       # Pack the dir as a zip and upload to the release
       - name: 📦 ZIP Dir
@@ -47,11 +47,11 @@ jobs:
           ls -l
           cd custom_components
           ls -l
-          cd ${{ github.workspace }}/custom_components/home-assistant-nve-water-flow
-          zip home-assistant-nve-water-flow.zip -r ./
+          cd ${{ github.workspace }}/custom_components/nve_water_flow
+          zip nve_water_flow.zip -r ./
 
       - name: 📤 Upload zip to release
         uses: softprops/action-gh-release@v2
         if: ${{ github.event_name == 'release' }}
         with:
-          files: ${{ github.workspace }}/custom_components/home-assistant-nve-water-flow/home-assistant-nve-water-flow.zip
+          files: ${{ github.workspace }}/custom_components/nve_water_flow/nve_water_flow.zip
