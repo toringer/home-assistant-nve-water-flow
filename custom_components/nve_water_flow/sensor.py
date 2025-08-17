@@ -13,7 +13,6 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
-    CONF_NAME,
     UnitOfVolumeFlowRate,
 )
 from homeassistant.core import HomeAssistant
@@ -82,18 +81,16 @@ async def async_setup_entry(
             station_id,
             station_name,
             api,
-            SENSOR_WATER_FLOW,
         )
     )
 
     # Create last update sensor
     entities.append(
-        NVEWaterFlowSensor(
+        NVELastUpdateSensor(
             coordinator,
             station_id,
             station_name,
             api,
-            SENSOR_LAST_UPDATE,
         )
     )
 
@@ -130,8 +127,8 @@ async def _async_update_data(hass: HomeAssistant, entry_id: str) -> dict[str, An
     return data
 
 
-class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
-    """Representation of an NVE Water Flow sensor."""
+class NVEBaseSensor(CoordinatorEntity, SensorEntity):
+    """Base class for NVE Water Flow sensors."""
 
     def __init__(
         self,
@@ -139,14 +136,12 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
         station_id: str,
         station_name: str,
         api: Any,
-        sensor_type: str,
     ) -> None:
-        """Initialize the sensor."""
+        """Initialize the base sensor."""
         super().__init__(coordinator)
         self.station_id = station_id
         self.station_name = station_name
         self.api = api
-        self.sensor_type = sensor_type
 
         # Get the main device ID from the coordinator's data
         self.main_device_id = None
@@ -155,27 +150,8 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
                 coordinator.config_entry.entry_id, {})
             self.main_device_id = domain_data.get("main_device_id")
 
-        # Set unique ID
-        self._attr_unique_id = f"{station_id}_{sensor_type}"
-
         # Set attribution for all sensors
         self._attr_attribution = "Data provided by NVE Hydrological API"
-
-        # Set name
-        if sensor_type == SENSOR_WATER_FLOW:
-            self._attr_name = f"{station_name} Water Flow"
-        elif sensor_type == SENSOR_LAST_UPDATE:
-            self._attr_name = f"{station_name} Last Update"
-
-        # Set device class and state class for water flow sensor
-        if sensor_type == SENSOR_WATER_FLOW:
-            self._attr_device_class = SensorDeviceClass.VOLUME_FLOW_RATE
-            self._attr_state_class = SensorStateClass.MEASUREMENT
-            self._attr_native_unit_of_measurement = UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND
-
-        # Set device class for last update sensor
-        elif sensor_type == SENSOR_LAST_UPDATE:
-            self._attr_device_class = SensorDeviceClass.TIMESTAMP
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -191,6 +167,41 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
         )
 
     @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return (
+            super().available
+            and self.coordinator.data is not None
+            and self.station_id in self.coordinator.data
+            and self.coordinator.data[self.station_id].get("water_flow_data") is not None
+        )
+
+
+class NVEWaterFlowSensor(NVEBaseSensor):
+    """Representation of an NVE Water Flow sensor."""
+
+    def __init__(
+        self,
+        coordinator: DataUpdateCoordinator,
+        station_id: str,
+        station_name: str,
+        api: Any,
+    ) -> None:
+        """Initialize the water flow sensor."""
+        super().__init__(coordinator, station_id, station_name, api)
+        
+        # Set unique ID
+        self._attr_unique_id = f"{station_id}_{SENSOR_WATER_FLOW}"
+        
+        # Set name
+        self._attr_name = f"{station_name} Water Flow"
+        
+        # Set device class and state class for water flow sensor
+        self._attr_device_class = SensorDeviceClass.VOLUME_FLOW_RATE
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_native_unit_of_measurement = UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND
+
+    @property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
         if not self.coordinator.data or self.station_id not in self.coordinator.data:
@@ -199,19 +210,72 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
         station_data = self.coordinator.data[self.station_id]
         water_flow_data = station_data.get("water_flow_data", {})
 
-        if self.sensor_type == SENSOR_WATER_FLOW:
-            return water_flow_data.get("value")
-        elif self.sensor_type == SENSOR_LAST_UPDATE:
-            time_str = water_flow_data.get("time")
-            if time_str:
-                try:
-                    # Parse ISO 8601 timestamp
-                    dt = datetime.fromisoformat(
-                        time_str.replace("Z", "+00:00"))
-                    return dt
-                except ValueError:
-                    _LOGGER.warning("Invalid timestamp format: %s", time_str)
-                    return None
+        return water_flow_data.get("value")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return entity specific state attributes."""
+        if not self.coordinator.data or self.station_id not in self.coordinator.data:
+            return {}
+
+        station_data = self.coordinator.data[self.station_id]
+        water_flow_data = station_data.get("water_flow_data", {})
+
+        attrs = {
+            ATTR_ATTRIBUTION: "Data provided by NVE Hydrological API",
+            ATTR_STATION_NAME: water_flow_data.get("station_name"),
+            ATTR_STATION_ID: water_flow_data.get("station_id"),
+            ATTR_PARAMETER_NAME: water_flow_data.get("parameter_name"),
+            ATTR_UNIT: water_flow_data.get("unit"),
+            "quality": water_flow_data.get("quality"),
+            ATTR_CORRECTION: water_flow_data.get("correction"),
+            "method": water_flow_data.get("method"),
+        }
+
+        return attrs
+
+
+class NVELastUpdateSensor(NVEBaseSensor):
+    """Representation of an NVE Last Update sensor."""
+
+    def __init__(
+        self,
+        coordinator: DataUpdateCoordinator,
+        station_id: str,
+        station_name: str,
+        api: Any,
+    ) -> None:
+        """Initialize the last update sensor."""
+        super().__init__(coordinator, station_id, station_name, api)
+        
+        # Set unique ID
+        self._attr_unique_id = f"{station_id}_{SENSOR_LAST_UPDATE}"
+        
+        # Set name
+        self._attr_name = f"{station_name} Last Update"
+        
+        # Set device class for last update sensor
+        self._attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the state of the sensor."""
+        if not self.coordinator.data or self.station_id not in self.coordinator.data:
+            return None
+
+        station_data = self.coordinator.data[self.station_id]
+        water_flow_data = station_data.get("water_flow_data", {})
+
+        time_str = water_flow_data.get("time")
+        if time_str:
+            try:
+                # Parse ISO 8601 timestamp
+                dt = datetime.fromisoformat(
+                    time_str.replace("Z", "+00:00"))
+                return dt
+            except ValueError:
+                _LOGGER.warning("Invalid timestamp format: %s", time_str)
+                return None
 
         return None
 
@@ -232,20 +296,4 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
             ATTR_UNIT: water_flow_data.get("unit"),
         }
 
-        # Add quality and correction info for water flow sensor
-        if self.sensor_type == SENSOR_WATER_FLOW:
-            attrs["quality"] = water_flow_data.get("quality")
-            attrs[ATTR_CORRECTION] = water_flow_data.get("correction")
-            attrs["method"] = water_flow_data.get("method")
-
         return attrs
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return (
-            super().available
-            and self.coordinator.data is not None
-            and self.station_id in self.coordinator.data
-            and self.coordinator.data[self.station_id].get("water_flow_data") is not None
-        )

@@ -52,48 +52,6 @@ class NVEAPI:
         except aiohttp.ClientError as err:
             raise CannotConnect(f"Failed to connect to NVE API: {err}")
 
-    async def resolve_station_name(self, station_name: str) -> Optional[str]:
-        """Resolve a station name to a station ID."""
-        try:
-            session = await self._get_session()
-            params = {"StationName": station_name}
-            headers = {"X-API-Key": self.api_key}
-
-            async with session.get(f"{NVE_API_BASE_URL}/Stations", params=params, headers=headers) as response:
-                if response.status != 200:
-                    _LOGGER.error("Failed to fetch stations: %s",
-                                  response.status)
-                    return None
-
-                data = await response.json()
-                stations = data.get("data", [])
-
-                if not stations:
-                    _LOGGER.warning(
-                        "No stations found for name: %s", station_name)
-                    return None
-
-                if len(stations) > 1:
-                    _LOGGER.warning(
-                        "Multiple stations found for name '%s', using first match",
-                        station_name
-                    )
-
-                station_id = stations[0].get("stationId")
-                if not station_id:
-                    _LOGGER.error(
-                        "Station ID not found in response for: %s", station_name)
-                    return None
-
-                _LOGGER.info("Resolved station '%s' to ID: %s",
-                             station_name, station_id)
-                return station_id
-
-        except Exception as err:
-            _LOGGER.error("Error resolving station name '%s': %s",
-                          station_name, err)
-            return None
-
     async def get_water_flow_data(
         self, station_id: str, resolution_time: int = 0
     ) -> Optional[Dict[str, Any]]:
