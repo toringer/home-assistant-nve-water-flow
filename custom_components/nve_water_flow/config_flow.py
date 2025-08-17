@@ -13,7 +13,7 @@ from homeassistant.exceptions import HomeAssistantError
 
 from .const import (
     CONF_API_KEY,
-    CONF_STATIONS,
+    CONF_STATION_IDS,
     DOMAIN,
 )
 from .nve_api import NVEAPI
@@ -29,7 +29,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Initialize the config flow."""
         self.api_key: str | None = None
-        self.station_names: list[str] = []
+        self.station_ids: list[str] = []
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -70,20 +70,20 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            station_names_text = user_input[CONF_STATIONS]
-            self.station_names = [
-                name.strip() for name in station_names_text.split("\n") if name.strip()
+            station_ids_text = user_input[CONF_STATION_IDS]
+            self.station_ids = [
+                station_id.strip() for station_id in station_ids_text.split("\n") if station_id.strip()
             ]
 
-            if not self.station_names:
+            if not self.station_ids:
                 errors["base"] = "invalid_station"
             else:
                 try:
-                    # Validate station names
+                    # Validate station IDs using the API
                     api = NVEAPI(self.api_key)
-                    for station_name in self.station_names:
-                        station_id = await api.resolve_station_name(station_name)
-                        if not station_id:
+                    for station_id in self.station_ids:
+                        station_info = await api.get_station_info(station_id)
+                        if not station_info:
                             errors["base"] = "invalid_station"
                             break
 
@@ -93,7 +93,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             title="NVE Water Flow",
                             data={
                                 CONF_API_KEY: self.api_key,
-                                CONF_STATIONS: self.station_names,
+                                CONF_STATION_IDS: self.station_ids,
                             },
                         )
                 except Exception:  # pylint: disable=broad-except
@@ -104,7 +104,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="stations",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_STATIONS): str,
+                    vol.Required(CONF_STATION_IDS): str,
                 }
             ),
             errors=errors,

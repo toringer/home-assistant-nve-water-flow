@@ -33,7 +33,7 @@ from .const import (
     ATTR_STATION_NAME,
     ATTR_UNIT,
     CONF_API_KEY,
-    CONF_STATIONS,
+    CONF_STATION_IDS,
     DOMAIN,
     SENSOR_LAST_UPDATE,
     SENSOR_WATER_FLOW,
@@ -54,7 +54,7 @@ async def async_setup_entry(
     """Set up the NVE Water Flow sensor platform."""
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     api = domain_data["api"]
-    stations = domain_data["stations"]
+    station_ids = domain_data["station_ids"]
 
     # Create coordinator for data updates with fixed 3600 second interval
     coordinator = DataUpdateCoordinator(
@@ -70,11 +70,16 @@ async def async_setup_entry(
 
     # Create sensors for each station
     entities = []
-    for station_name in stations:
+    for station_id in station_ids:
+        # Get station info to get the station name
+        station_info = await api.get_station_info(station_id)
+        station_name = station_info.get("stationName", station_id) if station_info else station_id
+        
         # Create water flow sensor
         entities.append(
             NVEWaterFlowSensor(
                 coordinator,
+                station_id,
                 station_name,
                 api,
                 SENSOR_WATER_FLOW,
@@ -85,6 +90,7 @@ async def async_setup_entry(
         entities.append(
             NVEWaterFlowSensor(
                 coordinator,
+                station_id,
                 station_name,
                 api,
                 SENSOR_LAST_UPDATE,
@@ -101,33 +107,26 @@ async def _async_update_data(hass: HomeAssistant, entry_id: str) -> dict[str, An
     """Update data from NVE API."""
     domain_data = hass.data[DOMAIN][entry_id]
     api = domain_data["api"]
-    stations = domain_data["stations"]
+    station_ids = domain_data["station_ids"]
 
     data = {}
 
-    for station_name in stations:
+    for station_id in station_ids:
         try:
-            # Resolve station name to ID
-            station_id = await api.resolve_station_name(station_name)
-            if not station_id:
-                _LOGGER.warning(
-                    "Could not resolve station name: %s", station_name)
-                continue
-
-            # Get water flow data
+            # Get water flow data directly using station ID
             water_flow_data = await api.get_water_flow_data(station_id)
             if water_flow_data:
-                data[station_name] = {
+                data[station_id] = {
                     "station_id": station_id,
                     "water_flow_data": water_flow_data,
                 }
             else:
                 _LOGGER.warning(
-                    "No water flow data for station: %s", station_name)
+                    "No water flow data for station: %s", station_id)
 
         except Exception as err:
             _LOGGER.error(
-                "Error updating data for station %s: %s", station_name, err)
+                "Error updating data for station %s: %s", station_id, err)
 
     return data
 
@@ -138,12 +137,14 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
     def __init__(
         self,
         coordinator: DataUpdateCoordinator,
+        station_id: str,
         station_name: str,
         api: Any,
         sensor_type: str,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
+        self.station_id = station_id
         self.station_name = station_name
         self.api = api
         self.sensor_type = sensor_type
@@ -156,7 +157,7 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
             self.main_device_id = domain_data.get("main_device_id")
 
         # Set unique ID
-        self._attr_unique_id = f"{station_name}_{sensor_type}"
+        self._attr_unique_id = f"{station_id}_{sensor_type}"
 
         # Set attribution for all sensors
         self._attr_attribution = "Data provided by NVE Hydrological API"
@@ -181,7 +182,7 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
     def device_info(self) -> DeviceInfo:
         """Return device information."""
         return DeviceInfo(
-            identifiers={(DOMAIN, self.station_name)},
+            identifiers={(DOMAIN, self.station_id)},
             name=f"NVE Station {self.station_name}",
             manufacturer="Norwegian Water Resources and Energy Directorate",
             model="Hydrological Monitoring Station",
@@ -193,10 +194,10 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
-        if not self.coordinator.data or self.station_name not in self.coordinator.data:
+        if not self.coordinator.data or self.station_id not in self.coordinator.data:
             return None
 
-        station_data = self.coordinator.data[self.station_name]
+        station_data = self.coordinator.data[self.station_id]
         water_flow_data = station_data.get("water_flow_data", {})
 
         if self.sensor_type == SENSOR_WATER_FLOW:
@@ -218,10 +219,10 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return entity specific state attributes."""
-        if not self.coordinator.data or self.station_name not in self.coordinator.data:
+        if not self.coordinator.data or self.station_id not in self.coordinator.data:
             return {}
 
-        station_data = self.coordinator.data[self.station_name]
+        station_data = self.coordinator.data[self.station_id]
         water_flow_data = station_data.get("water_flow_data", {})
 
         attrs = {
@@ -246,15 +247,6 @@ class NVEWaterFlowSensor(CoordinatorEntity, SensorEntity):
         return (
             super().available
             and self.coordinator.data is not None
-            and self.station_name in self.coordinator.data
-            and self.coordinator.data[self.station_name].get("water_flow_data") is not None
+            and self.station_id in self.coordinator.data
+            and self.coordinator.data[self.station_id].get("water_flow_data") is not None
         )
-
-    @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.config_entry.entry_id)},
-            "name": self.station_name,
-            "model": VERSION,
-            "manufacturer": "Norges vassdrags- og energidirektorat",
-        }

@@ -5,7 +5,7 @@ VERSION = "0.1.0"
 
 # Configuration keys
 CONF_API_KEY = "api_key"
-CONF_STATIONS = "stations"
+CONF_STATION_IDS = "station_ids"
 
 # API configuration
 NVE_API_BASE_URL = "https://hydapi.nve.no/api/v1"

@@ -10,16 +10,16 @@
       },
       "stations": {
         "data": {
-          "station_names": "Station Names (one per line)"
+          "station_ids": "Station IDs (one per line)"
         },
-        "description": "Enter the names of the NVE stations you want to monitor. Each name should be on a separate line.",
+        "description": "Enter the NVE station IDs you want to monitor. Each ID should be on a separate line.",
         "title": "Configure Stations"
       }
     },
     "error": {
       "cannot_connect": "Failed to connect to NVE API",
       "invalid_api_key": "Invalid API key",
-      "invalid_station": "Invalid station name",
+      "invalid_station": "Invalid station ID",
       "unknown": "Unexpected error"
     },
     "abort": {
