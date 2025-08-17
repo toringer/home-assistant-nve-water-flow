@@ -9,10 +9,8 @@ A custom Home Assistant component for monitoring water flow data from Norwegian 
 ## Features
 
 - Monitor water flow from NVE stations across Norway
-- Add stations by name (automatically resolves station ID)
+- Add station by id
 - Real-time water flow data updates
-- Configurable update intervals
-- Support for multiple stations
 
 ## Installation
 
@@ -20,7 +18,6 @@ A custom Home Assistant component for monitoring water flow data from Norwegian 
 
 1. Copy the `custom_components/nve_water_flow` folder to your Home Assistant `config/custom_components/` directory
 2. Restart Home Assistant
-3. Add the component to your `configuration.yaml`
 
 ### Method 2: HACS (Home Assistant Community Store)
 
@@ -28,32 +25,15 @@ This component is not yet available in HACS, but manual installation is recommen
 
 ## Configuration
 
-Add the following to your `configuration.yaml`:
-
-```yaml
-nve_water_flow:
-  api_key: "YOUR_NVE_API_KEY"
-  stations:
-    - name: "Gryta"
-    - name: "Lierelv"
-  scan_interval: 300  # Update every 5 minutes (optional, default: 300)
-```
 
 ### Configuration Options
 
 | Option | Type | Required | Default | Description |
 |--------|------|----------|---------|-------------|
 | `api_key` | string | yes | - | Your NVE Hydrological API key |
-| `stations` | list | yes | - | List of stations to monitor |
-| `scan_interval` | integer | no | 300 | Update interval in seconds |
+| `station id` | string | yes | - | Station id to monitor |
 
-### Station Configuration
 
-Each station can be configured with:
-
-| Option | Type | Required | Default | Description |
-|--------|------|----------|---------|-------------|
-| `name` | string | yes | - | Station name (will be resolved to station ID) |
 
 ## Getting an API Key
 
@@ -64,20 +44,13 @@ Each station can be configured with:
 
 ## API Information
 
-This component uses the NVE Hydrological API (HydAPI) which provides:
-- Water flow data (parameter ID: 1001)
-- Real-time and historical data
-- Data from stations across Norway
-- Multiple time resolutions (instantaneous, hourly, daily)
-
-For more information, visit: [https://hydapi.nve.no](https://hydapi.nve.no)
+This component uses the NVE Hydrological API (HydAPI). For more information, visit: [https://hydapi.nve.no](https://hydapi.nve.no)
 
 ## Entities Created
 
 For each configured station, the following entities will be created:
 
 - **Sensor**: `sensor.{station_name}_water_flow` - Current water flow rate
-- **Sensor**: `sensor.{station_name}_water_flow_unit` - Unit of measurement
 - **Sensor**: `sensor.{station_name}_last_update` - Last data update timestamp
 
 ## Development
