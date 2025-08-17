@@ -8,7 +8,7 @@ import aiohttp
 
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import NVE_API_BASE_URL, WATER_FLOW_PARAMETER_ID
+from .const import NVE_API_BASE_URL, VERSION, WATER_FLOW_PARAMETER_ID
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,6 +21,9 @@ class NVEAPI:
         self.api_key = api_key
         self.hass = hass
         self.session: Optional[aiohttp.ClientSession] = None
+        # Create headers once during initialization
+        self.headers = {"X-API-Key": self.api_key,
+                        "User-Agent": f"home-assistant-nve-water-flow/{VERSION} https://github.com/toringer/home-assistant-nve-water-flow"}
 
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create aiohttp session."""
@@ -38,10 +41,8 @@ class NVEAPI:
         """Test the API connection and key validity."""
         try:
             session = await self._get_session()
-            # Pass headers in the request since we can't modify session headers
-            headers = {"X-API-Key": self.api_key}
-            
-            async with session.get(f"{NVE_API_BASE_URL}/Parameters", headers=headers) as response:
+
+            async with session.get(f"{NVE_API_BASE_URL}/Parameters", headers=self.headers) as response:
                 if response.status == 200:
                     return True
                 elif response.status == 401:
@@ -63,9 +64,8 @@ class NVEAPI:
                 "Parameter": WATER_FLOW_PARAMETER_ID,
                 "ResolutionTime": resolution_time,
             }
-            headers = {"X-API-Key": self.api_key}
 
-            async with session.get(f"{NVE_API_BASE_URL}/Observations", params=params, headers=headers) as response:
+            async with session.get(f"{NVE_API_BASE_URL}/Observations", params=params, headers=self.headers) as response:
                 if response.status != 200:
                     _LOGGER.error(
                         "Failed to fetch water flow data for station %s: %s",
@@ -116,9 +116,8 @@ class NVEAPI:
         try:
             session = await self._get_session()
             params = {"StationId": station_id}
-            headers = {"X-API-Key": self.api_key}
 
-            async with session.get(f"{NVE_API_BASE_URL}/Stations", params=params, headers=headers) as response:
+            async with session.get(f"{NVE_API_BASE_URL}/Stations", params=params, headers=self.headers) as response:
                 if response.status == 401:
                     raise InvalidAPIKey("Invalid API key")
                 elif response.status != 200:
