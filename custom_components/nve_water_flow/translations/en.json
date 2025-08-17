@@ -8,12 +8,12 @@
         "description": "Enter your NVE Hydrological API key.",
         "title": "NVE Water Flow Configuration"
       },
-      "stations": {
+      "station": {
         "data": {
-          "station_ids": "Station IDs (one per line)"
+          "station_ids": "Station ID"
         },
-        "description": "Enter the NVE station IDs you want to monitor. Each ID should be on a separate line.",
-        "title": "Configure Stations"
+        "description": "Enter the NVE station ID you want to monitor.",
+        "title": "Configure Station"
       }
     },
     "error": {

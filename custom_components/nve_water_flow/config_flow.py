@@ -29,7 +29,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Initialize the config flow."""
         self.api_key: str | None = None
-        self.station_ids: list[str] = []
+        self.station_id: str | None = None
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -44,7 +44,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 # Test the API key
                 api = NVEAPI(self.api_key)
                 await api.test_connection()
-                return await self.async_step_stations()
+                return await self.async_step_station()
             except InvalidAPIKey:
                 errors["base"] = "invalid_api_key"
             except CannotConnect:
@@ -63,37 +63,32 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_stations(
+    async def async_step_station(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the stations configuration step."""
+        """Handle the station configuration step."""
         errors = {}
 
         if user_input is not None:
-            station_ids_text = user_input[CONF_STATION_IDS]
-            self.station_ids = [
-                station_id.strip() for station_id in station_ids_text.split("\n") if station_id.strip()
-            ]
+            station_id = user_input[CONF_STATION_IDS].strip()
 
-            if not self.station_ids:
+            if not station_id:
                 errors["base"] = "invalid_station"
             else:
                 try:
-                    # Validate station IDs using the API
+                    # Validate station ID using the API
                     api = NVEAPI(self.api_key)
-                    for station_id in self.station_ids:
-                        station_info = await api.get_station_info(station_id)
-                        if not station_info:
-                            errors["base"] = "invalid_station"
-                            break
-
-                    if not errors:
+                    station_info = await api.get_station_info(station_id)
+                    if not station_info:
+                        errors["base"] = "invalid_station"
+                    else:
+                        self.station_id = station_id
                         # Create the config entry
                         return self.async_create_entry(
                             title="NVE Water Flow",
                             data={
                                 CONF_API_KEY: self.api_key,
-                                CONF_STATION_IDS: self.station_ids,
+                                CONF_STATION_IDS: [self.station_id],
                             },
                         )
                 except Exception:  # pylint: disable=broad-except
@@ -101,7 +96,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors["base"] = "unknown"
 
         return self.async_show_form(
-            step_id="stations",
+            step_id="station",
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_STATION_IDS): str,
