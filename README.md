@@ -42,6 +42,12 @@ This component is not yet available in HACS, but manual installation is recommen
 3. Enter your email address
 4. Copy the generated API key
 
+## Finding station id
+1. Visit [Sildre](https://sildre.nve.no)
+2. Filter for ´Water flow´
+3. Find your station
+4. You will find the station id on the about page for the station
+
 ## API Information
 
 This component uses the NVE Hydrological API (HydAPI). For more information, visit: [https://hydapi.nve.no](https://hydapi.nve.no)

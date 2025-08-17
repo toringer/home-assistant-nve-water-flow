@@ -69,11 +69,12 @@ async def async_setup_entry(
 
     # Get station info to get the station name
     station_info = await api.get_station_info(station_id)
-    station_name = station_info.get("stationName", station_id) if station_info else station_id
-    
+    station_name = station_info.get(
+        "stationName", station_id) if station_info else station_id
+
     # Create sensors for the station
     entities = []
-    
+
     # Create water flow sensor
     entities.append(
         NVEWaterFlowSensor(
@@ -161,7 +162,7 @@ class NVEBaseSensor(CoordinatorEntity, SensorEntity):
             name=f"NVE Station {self.station_name}",
             manufacturer="Norwegian Water Resources and Energy Directorate",
             model="Hydrological Monitoring Station",
-            sw_version="1.0.0",
+            sw_version=VERSION,
             via_device=(
                 DOMAIN, f"nve_water_flow_{self.coordinator.config_entry.entry_id}") if self.main_device_id else None,
         )
@@ -189,13 +190,13 @@ class NVEWaterFlowSensor(NVEBaseSensor):
     ) -> None:
         """Initialize the water flow sensor."""
         super().__init__(coordinator, station_id, station_name, api)
-        
+
         # Set unique ID
         self._attr_unique_id = f"{station_id}_{SENSOR_WATER_FLOW}"
-        
+
         # Set name
         self._attr_name = f"{station_name} Water Flow"
-        
+
         # Set device class and state class for water flow sensor
         self._attr_device_class = SensorDeviceClass.VOLUME_FLOW_RATE
         self._attr_state_class = SensorStateClass.MEASUREMENT
@@ -247,13 +248,13 @@ class NVELastUpdateSensor(NVEBaseSensor):
     ) -> None:
         """Initialize the last update sensor."""
         super().__init__(coordinator, station_id, station_name, api)
-        
+
         # Set unique ID
         self._attr_unique_id = f"{station_id}_{SENSOR_LAST_UPDATE}"
-        
+
         # Set name
         self._attr_name = f"{station_name} Last Update"
-        
+
         # Set device class for last update sensor
         self._attr_device_class = SensorDeviceClass.TIMESTAMP
 
