@@ -135,3 +135,11 @@ If you encounter any issues or have questions:
 1. Check the [Home Assistant forums](https://community.home-assistant.io/)
 2. Open an issue on this repository
 3. Check the [NVE API documentation](https://hydapi.nve.no) for API-related questions
+
+
+[releases-shield]: https://img.shields.io/github/v/release/toringer/home-assistant-nve-water-flow?style=flat-square
+[releases]: https://github.com/toringer/home-assistant-nve-water-flow/releases
+[total-downloads-shield]: https://img.shields.io/github/downloads/toringer/home-assistant-nve-water-flow/total?style=flat-square
+[total-downloads]: https://github.com/toringer/home-assistant-nve-water-flow
+[latest-release-downloads-shield]: https://img.shields.io/github/downloads/toringer/home-assistant-nve-water-flow/latest/total?style=flat-square
+[latest-release-downloads]: https://github.com/toringer/home-assistant-nve-water-flow
