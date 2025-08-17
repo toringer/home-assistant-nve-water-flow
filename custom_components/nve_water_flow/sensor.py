@@ -162,7 +162,6 @@ class NVEBaseSensor(CoordinatorEntity, SensorEntity):
             name=f"NVE Station {self.station_name}",
             manufacturer="Norwegian Water Resources and Energy Directorate",
             model="Hydrological Monitoring Station",
-            sw_version=VERSION,
             via_device=(
                 DOMAIN, f"nve_water_flow_{self.coordinator.config_entry.entry_id}") if self.main_device_id else None,
         )

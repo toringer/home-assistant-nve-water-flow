@@ -44,7 +44,7 @@ This component is not yet available in HACS, but manual installation is recommen
 
 ## Finding station id
 1. Visit [Sildre](https://sildre.nve.no)
-2. Filter for ´Water flow´
+2. Filter for "Water flow"
 3. Find your station
 4. You will find the station id on the about page for the station
 
