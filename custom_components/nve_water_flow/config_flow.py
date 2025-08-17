@@ -13,7 +13,7 @@ from homeassistant.exceptions import HomeAssistantError
 
 from .const import (
     CONF_API_KEY,
-    CONF_STATION_IDS,
+    CONF_STATION_ID,
     DOMAIN,
 )
 from .nve_api import NVEAPI
@@ -70,7 +70,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            station_id = user_input[CONF_STATION_IDS].strip()
+            station_id = user_input[CONF_STATION_ID]
 
             if not station_id:
                 errors["base"] = "invalid_station"
@@ -88,7 +88,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             title="NVE Water Flow",
                             data={
                                 CONF_API_KEY: self.api_key,
-                                CONF_STATION_IDS: [self.station_id],
+                                CONF_STATION_ID: self.station_id,
                             },
                         )
                 except Exception:  # pylint: disable=broad-except
@@ -99,7 +99,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="station",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_STATION_IDS): str,
+                    vol.Required(CONF_STATION_ID): str,
                 }
             ),
             errors=errors,

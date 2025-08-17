@@ -33,7 +33,7 @@ from .const import (
     ATTR_STATION_NAME,
     ATTR_UNIT,
     CONF_API_KEY,
-    CONF_STATION_IDS,
+    CONF_STATION_ID,
     DOMAIN,
     SENSOR_LAST_UPDATE,
     SENSOR_WATER_FLOW,
@@ -54,7 +54,7 @@ async def async_setup_entry(
     """Set up the NVE Water Flow sensor platform."""
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     api = domain_data["api"]
-    station_ids = domain_data["station_ids"]
+    station_id = domain_data["station_id"]
 
     # Create coordinator for data updates with fixed 3600 second interval
     coordinator = DataUpdateCoordinator(
@@ -70,32 +70,33 @@ async def async_setup_entry(
 
     # Create sensors for each station
     entities = []
-    for station_id in station_ids:
-        # Get station info to get the station name
-        station_info = await api.get_station_info(station_id)
-        station_name = station_info.get("stationName", station_id) if station_info else station_id
-        
-        # Create water flow sensor
-        entities.append(
-            NVEWaterFlowSensor(
-                coordinator,
-                station_id,
-                station_name,
-                api,
-                SENSOR_WATER_FLOW,
-            )
-        )
 
-        # Create last update sensor
-        entities.append(
-            NVEWaterFlowSensor(
-                coordinator,
-                station_id,
-                station_name,
-                api,
-                SENSOR_LAST_UPDATE,
-            )
+    # Get station info to get the station name
+    station_info = await api.get_station_info(station_id)
+    station_name = station_info.get(
+        "stationName", station_id) if station_info else station_id
+
+    # Create water flow sensor
+    entities.append(
+        NVEWaterFlowSensor(
+            coordinator,
+            station_id,
+            station_name,
+            api,
+            SENSOR_WATER_FLOW,
         )
+    )
+
+    # Create last update sensor
+    entities.append(
+        NVEWaterFlowSensor(
+            coordinator,
+            station_id,
+            station_name,
+            api,
+            SENSOR_LAST_UPDATE,
+        )
+    )
 
     async_add_entities(entities)
 
@@ -107,26 +108,25 @@ async def _async_update_data(hass: HomeAssistant, entry_id: str) -> dict[str, An
     """Update data from NVE API."""
     domain_data = hass.data[DOMAIN][entry_id]
     api = domain_data["api"]
-    station_ids = domain_data["station_ids"]
+    station_id = domain_data["station_id"]
 
     data = {}
 
-    for station_id in station_ids:
-        try:
-            # Get water flow data directly using station ID
-            water_flow_data = await api.get_water_flow_data(station_id)
-            if water_flow_data:
-                data[station_id] = {
-                    "station_id": station_id,
-                    "water_flow_data": water_flow_data,
-                }
-            else:
-                _LOGGER.warning(
-                    "No water flow data for station: %s", station_id)
+    try:
+        # Get water flow data directly using station ID
+        water_flow_data = await api.get_water_flow_data(station_id)
+        if water_flow_data:
+            data[station_id] = {
+                "station_id": station_id,
+                "water_flow_data": water_flow_data,
+            }
+        else:
+            _LOGGER.warning(
+                "No water flow data for station: %s", station_id)
 
-        except Exception as err:
-            _LOGGER.error(
-                "Error updating data for station %s: %s", station_id, err)
+    except Exception as err:
+        _LOGGER.error(
+            "Error updating data for station %s: %s", station_id, err)
 
     return data
 

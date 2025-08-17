@@ -10,7 +10,7 @@
       },
       "station": {
         "data": {
-          "station_ids": "Station ID"
+          "station_id": "Station ID"
         },
         "description": "Enter the NVE station ID you want to monitor.",
         "title": "Configure Station"
