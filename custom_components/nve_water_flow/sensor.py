@@ -68,14 +68,13 @@ async def async_setup_entry(
     # Store coordinator in hass data
     domain_data["coordinator"] = coordinator
 
-    # Create sensors for each station
-    entities = []
-
     # Get station info to get the station name
     station_info = await api.get_station_info(station_id)
-    station_name = station_info.get(
-        "stationName", station_id) if station_info else station_id
-
+    station_name = station_info.get("stationName", station_id) if station_info else station_id
+    
+    # Create sensors for the station
+    entities = []
+    
     # Create water flow sensor
     entities.append(
         NVEWaterFlowSensor(

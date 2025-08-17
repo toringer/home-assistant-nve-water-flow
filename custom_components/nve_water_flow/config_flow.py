@@ -42,7 +42,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             try:
                 # Test the API key
-                api = NVEAPI(self.api_key)
+                api = NVEAPI(self.api_key, self.hass)
                 await api.test_connection()
                 return await self.async_step_station()
             except InvalidAPIKey:
@@ -77,7 +77,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 try:
                     # Validate station ID using the API
-                    api = NVEAPI(self.api_key)
+                    api = NVEAPI(self.api_key, self.hass)
                     station_info = await api.get_station_info(station_id)
                     if not station_info:
                         errors["base"] = "invalid_station"

@@ -26,7 +26,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     station_id = entry.data[CONF_STATION_ID]
 
     # Create API client
-    api = NVEAPI(api_key)
+    api = NVEAPI(api_key, hass)
 
     try:
         # Test connection

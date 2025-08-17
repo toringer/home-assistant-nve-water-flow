@@ -6,6 +6,8 @@ from typing import Any, Dict, List, Optional
 
 import aiohttp
 
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
 from .const import NVE_API_BASE_URL, WATER_FLOW_PARAMETER_ID
 
 _LOGGER = logging.getLogger(__name__)
@@ -14,29 +16,32 @@ _LOGGER = logging.getLogger(__name__)
 class NVEAPI:
     """NVE Hydrological API client."""
 
-    def __init__(self, api_key: str) -> None:
+    def __init__(self, api_key: str, hass) -> None:
         """Initialize the NVE API client."""
         self.api_key = api_key
+        self.hass = hass
         self.session: Optional[aiohttp.ClientSession] = None
 
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create aiohttp session."""
         if self.session is None or self.session.closed:
-            self.session = aiohttp.ClientSession(
-                headers={"X-API-Key": self.api_key}
-            )
+            # Use Home Assistant's managed session
+            self.session = async_get_clientsession(self.hass)
         return self.session
 
     async def close(self) -> None:
         """Close the aiohttp session."""
-        if self.session and not self.session.closed:
-            await self.session.close()
+        # Home Assistant manages the session lifecycle, so we don't close it
+        self.session = None
 
     async def test_connection(self) -> bool:
         """Test the API connection and key validity."""
         try:
             session = await self._get_session()
-            async with session.get(f"{NVE_API_BASE_URL}/Parameters") as response:
+            # Pass headers in the request since we can't modify session headers
+            headers = {"X-API-Key": self.api_key}
+            
+            async with session.get(f"{NVE_API_BASE_URL}/Parameters", headers=headers) as response:
                 if response.status == 200:
                     return True
                 elif response.status == 401:
@@ -52,8 +57,9 @@ class NVEAPI:
         try:
             session = await self._get_session()
             params = {"StationName": station_name}
+            headers = {"X-API-Key": self.api_key}
 
-            async with session.get(f"{NVE_API_BASE_URL}/Stations", params=params) as response:
+            async with session.get(f"{NVE_API_BASE_URL}/Stations", params=params, headers=headers) as response:
                 if response.status != 200:
                     _LOGGER.error("Failed to fetch stations: %s",
                                   response.status)
@@ -99,8 +105,9 @@ class NVEAPI:
                 "Parameter": WATER_FLOW_PARAMETER_ID,
                 "ResolutionTime": resolution_time,
             }
+            headers = {"X-API-Key": self.api_key}
 
-            async with session.get(f"{NVE_API_BASE_URL}/Observations", params=params) as response:
+            async with session.get(f"{NVE_API_BASE_URL}/Observations", params=params, headers=headers) as response:
                 if response.status != 200:
                     _LOGGER.error(
                         "Failed to fetch water flow data for station %s: %s",
@@ -151,8 +158,9 @@ class NVEAPI:
         try:
             session = await self._get_session()
             params = {"StationId": station_id}
+            headers = {"X-API-Key": self.api_key}
 
-            async with session.get(f"{NVE_API_BASE_URL}/Stations", params=params) as response:
+            async with session.get(f"{NVE_API_BASE_URL}/Stations", params=params, headers=headers) as response:
                 if response.status != 200:
                     _LOGGER.error(
                         "Failed to fetch station info for %s: %s",
