@@ -9,7 +9,7 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import DOMAIN
 
 
 class NVEWaterFlowOptionsFlow(config_entries.OptionsFlow):
@@ -30,12 +30,7 @@ class NVEWaterFlowOptionsFlow(config_entries.OptionsFlow):
             step_id="init",
             data_schema=vol.Schema(
                 {
-                    vol.Optional(
-                        CONF_SCAN_INTERVAL,
-                        default=self.config_entry.options.get(
-                            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-                        ),
-                    ): int,
+                    # No configurable options remaining
                 }
             ),
         )

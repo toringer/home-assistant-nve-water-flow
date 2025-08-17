@@ -13,9 +13,7 @@ from homeassistant.exceptions import HomeAssistantError
 
 from .const import (
     CONF_API_KEY,
-    CONF_SCAN_INTERVAL,
     CONF_STATIONS,
-    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
 )
 from .nve_api import NVEAPI
@@ -31,7 +29,6 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Initialize the config flow."""
         self.api_key: str | None = None
-        self.scan_interval: int = DEFAULT_SCAN_INTERVAL
         self.station_names: list[str] = []
 
     async def async_step_user(
@@ -42,7 +39,6 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             self.api_key = user_input[CONF_API_KEY]
-            self.scan_interval = user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
             try:
                 # Test the API key
@@ -62,9 +58,6 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_API_KEY): str,
-                    vol.Optional(
-                        CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
-                    ): int,
                 }
             ),
             errors=errors,
@@ -100,7 +93,6 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             title="NVE Water Flow",
                             data={
                                 CONF_API_KEY: self.api_key,
-                                CONF_SCAN_INTERVAL: self.scan_interval,
                                 CONF_STATIONS: self.station_names,
                             },
                         )

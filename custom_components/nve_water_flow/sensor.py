@@ -33,7 +33,6 @@ from .const import (
     ATTR_STATION_NAME,
     ATTR_UNIT,
     CONF_API_KEY,
-    CONF_SCAN_INTERVAL,
     CONF_STATIONS,
     DOMAIN,
     SENSOR_LAST_UPDATE,
@@ -43,8 +42,8 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# Update interval for coordinator
-UPDATE_INTERVAL = timedelta(minutes=5)
+# Fixed update interval for coordinator (3600 seconds = 1 hour)
+UPDATE_INTERVAL = timedelta(seconds=3600)
 
 
 async def async_setup_entry(
@@ -56,15 +55,14 @@ async def async_setup_entry(
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     api = domain_data["api"]
     stations = domain_data["stations"]
-    scan_interval = domain_data.get("scan_interval", 300)
 
-    # Create coordinator for data updates
+    # Create coordinator for data updates with fixed 3600 second interval
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
         name="nve_water_flow",
         update_method=lambda: _async_update_data(hass, config_entry.entry_id),
-        update_interval=timedelta(seconds=scan_interval),
+        update_interval=UPDATE_INTERVAL,
     )
 
     # Store coordinator in hass data

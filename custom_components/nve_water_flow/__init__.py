@@ -9,7 +9,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import CONF_API_KEY, CONF_SCAN_INTERVAL, CONF_STATIONS, DOMAIN
+from .const import CONF_API_KEY, CONF_STATIONS, DOMAIN
 from .nve_api import NVEAPI
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,7 +24,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Get configuration
     api_key = entry.data[CONF_API_KEY]
     stations = entry.data[CONF_STATIONS]
-    scan_interval = entry.data.get(CONF_SCAN_INTERVAL, 300)
 
     # Create API client
     api = NVEAPI(api_key)
@@ -40,7 +39,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = {
         "api": api,
         "stations": stations,
-        "scan_interval": scan_interval,
     }
 
     # Forward the setup to the sensor platform
