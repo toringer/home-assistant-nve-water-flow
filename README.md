@@ -80,28 +80,13 @@ The devcontainer includes several VS Code tasks for Home Assistant development:
 - **Start Home Assistant (Development)**: Starts HA with UI auto-open and development options
 - **Stop Home Assistant**: Stops any running Home Assistant instances
 
-### Development Scripts
-
-Use the included development script for common tasks:
-
-```bash
-# Create a test configuration
-python dev_scripts.py create_config YOUR_API_KEY
-
-# Test API connection
-python dev_scripts.py test_api YOUR_API_KEY
-
-# Start Home Assistant with test config
-python dev_scripts.py start_ha test_config
-```
 
 ### Local Testing
 
-1. Create a test configuration: `python dev_scripts.py create_config YOUR_API_KEY`
-2. Start Home Assistant: `python dev_scripts.py start_ha test_config`
-3. Access the UI at http://localhost:8123
-4. Add the NVE Water Flow integration through the UI
-5. Test with your API key and stations
+1. Start Home Assistant
+2. Access the UI at http://localhost:8123
+3. Add the NVE Water Flow integration through the UI
+4. Test with your API key and stations
 
 ## License
 
