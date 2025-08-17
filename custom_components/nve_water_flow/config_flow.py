@@ -9,14 +9,13 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.exceptions import HomeAssistantError
 
 from .const import (
     CONF_API_KEY,
     CONF_STATION_ID,
     DOMAIN,
 )
-from .nve_api import NVEAPI
+from .nve_api import NVEAPI, InvalidAPIKey, CannotConnect
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -91,6 +90,10 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 CONF_STATION_ID: self.station_id,
                             },
                         )
+                except InvalidAPIKey:
+                    errors["base"] = "invalid_api_key"
+                except CannotConnect:
+                    errors["base"] = "cannot_connect"
                 except Exception:  # pylint: disable=broad-except
                     _LOGGER.exception("Unexpected exception")
                     errors["base"] = "unknown"
@@ -104,11 +107,3 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             errors=errors,
         )
-
-
-class InvalidAPIKey(HomeAssistantError):
-    """Error to indicate there is an invalid API key."""
-
-
-class CannotConnect(HomeAssistantError):
-    """Error to indicate we cannot connect to the API."""

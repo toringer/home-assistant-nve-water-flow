@@ -119,7 +119,9 @@ class NVEAPI:
             headers = {"X-API-Key": self.api_key}
 
             async with session.get(f"{NVE_API_BASE_URL}/Stations", params=params, headers=headers) as response:
-                if response.status != 200:
+                if response.status == 401:
+                    raise InvalidAPIKey("Invalid API key")
+                elif response.status != 200:
                     _LOGGER.error(
                         "Failed to fetch station info for %s: %s",
                         station_id, response.status
@@ -134,6 +136,9 @@ class NVEAPI:
 
                 return stations[0]
 
+        except InvalidAPIKey:
+            # Re-raise InvalidAPIKey exceptions
+            raise
         except Exception as err:
             _LOGGER.error(
                 "Error fetching station info for %s: %s", station_id, err)
