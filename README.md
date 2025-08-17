@@ -16,6 +16,10 @@ A custom Home Assistant component for monitoring water flow data from [Norwegian
 - Add station by id
 - Real-time water flow data updates
 
+<p align="center">
+<img width="50" alt="sensor" src="https://raw.githubusercontent.com/toringer/home-assistant-nve-water-flow/main/assets/sensor.png">
+</p>
+
 ## Installation
 
 ### Method 1: Manual Installation
