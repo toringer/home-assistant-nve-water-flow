@@ -39,6 +39,15 @@
     "sensor": {
       "nve_water_flow": {
         "name": "Water flow"
+      },
+      "cul_qm": {
+        "name": "Mean flooding"
+      },
+      "cul_q5": {
+        "name": "5-year flood return period"
+      },
+      "cul_q50": {
+        "name": "50-year flood return period"
       }
     }
   }

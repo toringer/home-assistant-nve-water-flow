@@ -133,7 +133,19 @@ class NVEAPI:
                 if not stations:
                     return None
 
-                return stations[0]
+                station = stations[0]
+                
+                # Extract culQ values from station data if available
+                # These might be in different locations depending on the API structure
+                if "culQm" in station:
+                    station["culQm"] = station["culQm"]
+                if "culQ5" in station:
+                    station["culQ5"] = station["culQ5"]
+                if "culQ50" in station:
+                    station["culQ50"] = station["culQ50"]
+                
+
+                return station
 
         except InvalidAPIKey:
             # Re-raise InvalidAPIKey exceptions

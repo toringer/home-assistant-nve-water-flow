@@ -66,6 +66,19 @@ For each configured station, the following entities will be created:
 
 - **Sensor**: `sensor.{station_name}_water_flow` - Current water flow rate
 - **Sensor**: `sensor.{station_name}_last_update` - Last data update timestamp
+- **Sensor**: `sensor.{station_name}_mean_flooding_culqm` - Mean flooding based on observed values timestep
+- **Sensor**: `sensor.{station_name}_5_year_flood_return_period_culq5` - 5-year flood return period (20% annual probability)
+- **Sensor**: `sensor.{station_name}_50_year_flood_return_period_culq50` - 50-year flood return period (2% annual probability)
+
+### Sensor Details
+
+All culQ sensors provide flood statistics for hydrological analysis and flood risk assessment:
+
+- **culQm**: Mean flooding based on the timestep for the observed values
+- **culQ5**: Flood with a return period of 5 years (20% probability each year)
+- **culQ50**: Flood with a return period of 50 years (2% probability each year)
+
+These values are fetched from the NVE stations endpoint and provide crucial information for water resource management and flood risk assessment. The culQ sensors are implemented using a single, efficient sensor class that handles all three flood statistics values.
 
 ## Development
 

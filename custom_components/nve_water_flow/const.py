@@ -1,7 +1,7 @@
 """Constants for the NVE Water Flow integration."""
 
 DOMAIN = "nve_water_flow"
-VERSION = "0.1.0"
+VERSION = "1.0.0"
 
 # Configuration keys
 CONF_API_KEY = "api_key"
@@ -23,3 +23,6 @@ ATTR_LAST_UPDATE = "last_update"
 # Sensor names
 SENSOR_WATER_FLOW = "water_flow"
 SENSOR_LAST_UPDATE = "last_update"
+SENSOR_CUL_QM = "cul_qm"
+SENSOR_CUL_Q5 = "cul_q5"
+SENSOR_CUL_Q50 = "cul_q50"
