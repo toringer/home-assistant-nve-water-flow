@@ -249,6 +249,7 @@ class NVEWaterFlowSensor(NVEBaseSensor):
         self._attr_device_class = SensorDeviceClass.VOLUME_FLOW_RATE
         self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_native_unit_of_measurement = UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND
+        self._attr_icon = "mdi:water"
 
     @property
     def native_value(self) -> StateType:
@@ -381,6 +382,7 @@ class NVECulQSensor(NVEBaseSensor):
         self._attr_device_class = SensorDeviceClass.VOLUME_FLOW_RATE
         self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_native_unit_of_measurement = UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND
+        self._attr_icon = "mdi:chart-line"
 
     @property
     def native_value(self) -> StateType:
