@@ -6,10 +6,14 @@ VERSION = "1.0.0"
 # Configuration keys
 CONF_API_KEY = "api_key"
 CONF_STATION_ID = "station_id"
+CONF_STATION_NAME = "station_name"
 
 # API configuration
 NVE_API_BASE_URL = "https://hydapi.nve.no/api/v1"
 WATER_FLOW_PARAMETER_ID = 1001  # Discharge parameter ID
+
+# Update interval (30 minutes base with 30 seconds variance to prevent API collisions)
+UPDATE_INTERVAL_SECONDS = 600  # 10 minutes in seconds
 
 # Sensor attributes
 ATTR_STATION_ID = "station_id"

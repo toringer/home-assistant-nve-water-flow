@@ -27,6 +27,7 @@ class NVEAPI:
 
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create aiohttp session."""
+        _LOGGER.debug("Getting aiohttp session for NVE API")
         if self.session is None or self.session.closed:
             # Use Home Assistant's managed session
             self.session = async_get_clientsession(self.hass)
@@ -39,6 +40,7 @@ class NVEAPI:
 
     async def test_connection(self) -> bool:
         """Test the API connection and key validity."""
+        _LOGGER.debug("Testing NVE API connection with")
         try:
             session = await self._get_session()
 
@@ -57,6 +59,7 @@ class NVEAPI:
         self, station_id: str, resolution_time: int = 0
     ) -> Optional[Dict[str, Any]]:
         """Get water flow data for a specific station."""
+        _LOGGER.debug("Fetching water flow data for station %s", station_id)
         try:
             session = await self._get_session()
             params = {
@@ -113,6 +116,7 @@ class NVEAPI:
 
     async def get_station_info(self, station_id: str) -> Optional[Dict[str, Any]]:
         """Get detailed information about a station."""
+        _LOGGER.debug("Fetching station info for station %s", station_id)
         try:
             session = await self._get_session()
             params = {"StationId": station_id}
@@ -134,7 +138,7 @@ class NVEAPI:
                     return None
 
                 station = stations[0]
-                
+
                 # Extract culQ values from station data if available
                 # These might be in different locations depending on the API structure
                 if "culQm" in station:
@@ -143,7 +147,6 @@ class NVEAPI:
                     station["culQ5"] = station["culQ5"]
                 if "culQ50" in station:
                     station["culQ50"] = station["culQ50"]
-                
 
                 return station
 
