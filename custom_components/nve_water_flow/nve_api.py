@@ -30,6 +30,7 @@ class NVEAPI:
         _LOGGER.debug("Getting aiohttp session for NVE API")
         if self.session is None or self.session.closed:
             # Use Home Assistant's managed session
+            _LOGGER.debug("Creating new aiohttp session for NVE API")
             self.session = async_get_clientsession(self.hass)
         return self.session
 
@@ -138,16 +139,6 @@ class NVEAPI:
                     return None
 
                 station = stations[0]
-
-                # Extract culQ values from station data if available
-                # These might be in different locations depending on the API structure
-                if "culQm" in station:
-                    station["culQm"] = station["culQm"]
-                if "culQ5" in station:
-                    station["culQ5"] = station["culQ5"]
-                if "culQ50" in station:
-                    station["culQ50"] = station["culQ50"]
-
                 return station
 
         except InvalidAPIKey:
