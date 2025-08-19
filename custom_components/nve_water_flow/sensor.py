@@ -86,46 +86,31 @@ async def async_setup_entry(
         )
     )
 
-    # Create culQ sensors
+    # Create culQ sensors (these are from station info, not parameters)
     entities.append(
-        NVEMeasurementSensor(
+        NVECulQSensor(
             coordinator,
             station_id,
             station_name,
             SENSOR_CUL_QM,
-            "Mean Flooding (culQm)",
-            UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND,
-            "mdi:chart-line",
-            SensorDeviceClass.VOLUME_FLOW_RATE,
-            SensorStateClass.MEASUREMENT,
         )
     )
 
     entities.append(
-        NVEMeasurementSensor(
+        NVECulQSensor(
             coordinator,
             station_id,
             station_name,
             SENSOR_CUL_Q5,
-            "5-Year Flood Return Period (culQ5)",
-            UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND,
-            "mdi:chart-line",
-            SensorDeviceClass.VOLUME_FLOW_RATE,
-            SensorStateClass.MEASUREMENT,
         )
     )
 
     entities.append(
-        NVEMeasurementSensor(
+        NVECulQSensor(
             coordinator,
             station_id,
             station_name,
             SENSOR_CUL_Q50,
-            "50-Year Flood Return Period (culQ50)",
-            UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND,
-            "mdi:chart-line",
-            SensorDeviceClass.VOLUME_FLOW_RATE,
-            SensorStateClass.MEASUREMENT,
         )
     )
 
@@ -302,6 +287,76 @@ class NVELastUpdateSensor(NVEBaseSensor):
             ATTR_STATION_ID: water_flow_data.get("station_id"),
             ATTR_PARAMETER_NAME: water_flow_data.get("parameter_name"),
             ATTR_UNIT: water_flow_data.get("unit"),
+        }
+
+        return attrs
+
+
+class NVECulQSensor(NVEBaseSensor):
+    """Representation of an NVE culQ (flood statistics) sensor."""
+
+    def __init__(
+        self,
+        coordinator: NVEWaterFlowCoordinator,
+        station_id: str,
+        station_name: str,
+        culq_type: str,
+    ) -> None:
+        """Initialize the culQ sensor."""
+        super().__init__(coordinator, station_id, station_name)
+        self.culq_type = culq_type
+
+        # Set unique ID based on culQ type
+        self._attr_unique_id = f"{station_id}_{culq_type}"
+
+        # Set name based on culQ type
+        if culq_type == SENSOR_CUL_QM:
+            self._attr_name = f"{station_name} Mean Flooding (culQm)"
+        elif culq_type == SENSOR_CUL_Q5:
+            self._attr_name = f"{station_name} 5-Year Flood Return Period (culQ5)"
+        elif culq_type == SENSOR_CUL_Q50:
+            self._attr_name = f"{station_name} 50-Year Flood Return Period (culQ50)"
+        else:
+            self._attr_name = f"{station_name} {culq_type}"
+
+        # Set device class and state class for culQ sensor
+        self._attr_device_class = SensorDeviceClass.VOLUME_FLOW_RATE
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_native_unit_of_measurement = UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND
+        self._attr_icon = "mdi:chart-line"
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the state of the sensor."""
+        if not self.coordinator.data or self.station_id not in self.coordinator.data:
+            return None
+
+        station_data = self.coordinator.data[self.station_id]
+        culq_data = station_data.get("culq_data", {})
+
+        # Return the appropriate culQ value based on sensor type
+        if self.culq_type == SENSOR_CUL_QM:
+            return culq_data.get("culQm")
+        elif self.culq_type == SENSOR_CUL_Q5:
+            return culq_data.get("culQ5")
+        elif self.culq_type == SENSOR_CUL_Q50:
+            return culq_data.get("culQ50")
+
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return entity specific state attributes."""
+        if not self.coordinator.data or self.station_id not in self.coordinator.data:
+            return {}
+
+        station_data = self.coordinator.data[self.station_id]
+
+        attrs = {
+            ATTR_ATTRIBUTION: "Data provided by NVE Hydrological API",
+            ATTR_STATION_NAME: station_data.get("station_name", self.station_name),
+            ATTR_STATION_ID: self.station_id,
+            "culq_type": self.culq_type,
         }
 
         return attrs
