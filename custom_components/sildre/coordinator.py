@@ -19,7 +19,7 @@ BASE_UPDATE_INTERVAL = timedelta(seconds=UPDATE_INTERVAL_SECONDS)
 VARIANCE_SECONDS = 30
 
 
-class NVEWaterFlowCoordinator(DataUpdateCoordinator):
+class SildreCoordinator(DataUpdateCoordinator):
     """Coordinator for Sildre data."""
 
     def __init__(

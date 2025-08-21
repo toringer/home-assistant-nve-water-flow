@@ -22,7 +22,7 @@ from .nve_api import NVEAPI, InvalidAPIKey, CannotConnect
 _LOGGER = logging.getLogger(__name__)
 
 
-class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class SildreFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Sildre."""
 
     VERSION = 1

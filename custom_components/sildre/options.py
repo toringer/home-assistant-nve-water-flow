@@ -12,7 +12,7 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import DOMAIN
 
 
-class NVEWaterFlowOptionsFlow(config_entries.OptionsFlow):
+class SildreOptionsFlow(config_entries.OptionsFlow):
     """Handle Sildre options."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
@@ -39,6 +39,6 @@ class NVEWaterFlowOptionsFlow(config_entries.OptionsFlow):
 @callback
 def async_get_options_flow(
     config_entry: config_entries.ConfigEntry,
-) -> NVEWaterFlowOptionsFlow:
+) -> SildreOptionsFlow:
     """Get the options flow for this handler."""
-    return NVEWaterFlowOptionsFlow(config_entry)
+    return SildreOptionsFlow(config_entry)

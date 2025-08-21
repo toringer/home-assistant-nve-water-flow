@@ -11,7 +11,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import CONF_API_KEY, CONF_STATION_ID, CONF_STATION_NAME, CONF_STATION_SERIES_LIST, DOMAIN
 from .nve_api import NVEAPI
-from .coordinator import NVEWaterFlowCoordinator
+from .coordinator import SildreCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise ConfigEntryNotReady from err
 
     # Create coordinator for data updates
-    coordinator = NVEWaterFlowCoordinator(
+    coordinator = SildreCoordinator(
         hass=hass,
         api=api,
         station_id=station_id,

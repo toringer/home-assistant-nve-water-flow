@@ -47,7 +47,7 @@ from .const import (
     SENSOR_CUL_Q50,
     VERSION
 )
-from .coordinator import NVEWaterFlowCoordinator
+from .coordinator import SildreCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ async def async_setup_entry(
 ) -> None:
     """Set up the Sildre sensor platform."""
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
-    coordinator: NVEWaterFlowCoordinator = domain_data["coordinator"]
+    coordinator: SildreCoordinator = domain_data["coordinator"]
 
     # Get station info from coordinator
     station_id = coordinator.station_id
@@ -74,7 +74,7 @@ async def async_setup_entry(
         unit = parameter.get("unit")
 
         entities.append(
-            NVEMeasurementSensor(
+            SildreMeasurementSensor(
                 coordinator,
                 station_id,
                 station_name,
@@ -90,7 +90,7 @@ async def async_setup_entry(
 
     # Create culQ sensors (these are from station info, not parameters)
     entities.append(
-        NVECulQSensor(
+        SildreCulQSensor(
             coordinator,
             station_id,
             station_name,
@@ -99,7 +99,7 @@ async def async_setup_entry(
     )
 
     entities.append(
-        NVECulQSensor(
+        SildreCulQSensor(
             coordinator,
             station_id,
             station_name,
@@ -108,7 +108,7 @@ async def async_setup_entry(
     )
 
     entities.append(
-        NVECulQSensor(
+        SildreCulQSensor(
             coordinator,
             station_id,
             station_name,
@@ -123,12 +123,12 @@ async def async_setup_entry(
         "Sildre sensors setup completed for station %s", station_id)
 
 
-class NVEBaseSensor(CoordinatorEntity, SensorEntity):
+class SildreBaseSensor(CoordinatorEntity, SensorEntity):
     """Base class for Sildre sensors."""
 
     def __init__(
         self,
-        coordinator: NVEWaterFlowCoordinator,
+        coordinator: SildreCoordinator,
         station_id: str,
         station_name: str,
     ) -> None:
@@ -158,12 +158,12 @@ class NVEBaseSensor(CoordinatorEntity, SensorEntity):
         )
 
 
-class NVEMeasurementSensor(NVEBaseSensor):
+class SildreMeasurementSensor(SildreBaseSensor):
     """Representation of an NVE measurement sensor."""
 
     def __init__(
         self,
-        coordinator: NVEWaterFlowCoordinator,
+        coordinator: SildreCoordinator,
         station_id: str,
         station_name: str,
         sensor_type: str,
@@ -257,12 +257,12 @@ class NVEMeasurementSensor(NVEBaseSensor):
         return attrs
 
 
-class NVECulQSensor(NVEBaseSensor):
+class SildreCulQSensor(SildreBaseSensor):
     """Representation of an NVE culQ (flood statistics) sensor."""
 
     def __init__(
         self,
-        coordinator: NVEWaterFlowCoordinator,
+        coordinator: SildreCoordinator,
         station_id: str,
         station_name: str,
         culq_type: str,
