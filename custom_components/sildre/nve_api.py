@@ -23,7 +23,7 @@ class NVEAPI:
         self.session: Optional[aiohttp.ClientSession] = None
         # Create headers once during initialization
         self.headers = {"X-API-Key": self.api_key,
-                        "User-Agent": f"home-assistant-nve-water-flow/{VERSION} https://github.com/toringer/home-assistant-nve-water-flow"}
+                        "User-Agent": f"home-assistant-sildre/{VERSION} https://github.com/toringer/home-assistant-sildre"}
 
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create aiohttp session."""
@@ -59,8 +59,8 @@ class NVEAPI:
     async def get_series_data(
         self, station_id: str, parameters: list[str], resolution_time: int = 0
     ) -> Optional[Dict[str, Any]]:
-        """Get water flow data for a specific station."""
-        _LOGGER.debug("Fetching water flow data for station %s", station_id)
+        """Get data for a specific station."""
+        _LOGGER.debug("Fetching data for station %s", station_id)
         try:
             session = await self._get_session()
             params = {
@@ -72,7 +72,7 @@ class NVEAPI:
             async with session.get(f"{NVE_API_BASE_URL}/Observations", params=params, headers=self.headers) as response:
                 if response.status != 200:
                     _LOGGER.error(
-                        "Failed to fetch water flow data for station %s: %s",
+                        "Failed to fetch data for station %s: %s",
                         station_id, response.status
                     )
                     return None
@@ -98,7 +98,7 @@ class NVEAPI:
 
         except Exception as err:
             _LOGGER.error(
-                "Error fetching water flow data for station %s: %s", station_id, err
+                "Error fetching data for station %s: %s", station_id, err
             )
             return None
 

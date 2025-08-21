@@ -3,28 +3,27 @@
 [![Latest release downloads][latest-release-downloads-shield]][latest-release-downloads]
 
 <p align="right">
-<img width="50" alt="Logo" src="https://raw.githubusercontent.com/toringer/home-assistant-nve-water-flow/main/assets/icon.png">
+<img width="50" alt="Logo" src="https://raw.githubusercontent.com/toringer/home-assistant-sildre/main/assets/icon.png">
 </p>
 
-# Home Assistant NVE Water Flow Component
+# Home Assistant Sildre Component
 
-A custom Home Assistant component for monitoring water flow data from [Norwegian Water Resources and Energy Directorate (NVE)](https://www.nve.no/) stations using their Hydrological API.
+A custom Home Assistant component for monitoring data from [Norwegian Water Resources and Energy Directorate (NVE)](https://www.nve.no/) stations using their Hydrological API.
 
 ## Features
 
-- Monitor water flow from NVE stations across Norway
+- Monitor data from NVE stations across Norway
 - Add station by id
-- Real-time water flow data updates
 
 <p align="center">
-<img width="350" alt="sensor" src="https://raw.githubusercontent.com/toringer/home-assistant-nve-water-flow/main/assets/sensor.png">
+<img width="350" alt="sensor" src="https://raw.githubusercontent.com/toringer/home-assistant-sildre/main/assets/sensor.png">
 </p>
 
 ## Installation
 
 ### Method 1: Manual Installation
 
-1. Copy the `custom_components/nve_water_flow` folder to your Home Assistant `config/custom_components/` directory
+1. Copy the `custom_components/sildre` folder to your Home Assistant `config/custom_components/` directory
 2. Restart Home Assistant
 
 ### Method 2: HACS (Home Assistant Community Store)
@@ -52,7 +51,6 @@ This component is not yet available in HACS, but manual installation is recommen
 
 ## Finding station id
 1. Visit [Sildre](https://sildre.nve.no)
-2. Filter for "Water flow"
 3. Find your station
 4. You will find the station id on the about page for the station
 
@@ -64,8 +62,6 @@ This component uses the NVE Hydrological API (HydAPI). For more information, vis
 
 For each configured station, the following entities will be created:
 
-- **Sensor**: `sensor.{station_name}_water_flow` - Current water flow rate
-- **Sensor**: `sensor.{station_name}_last_update` - Last data update timestamp
 - **Sensor**: `sensor.{station_name}_mean_flooding_culqm` - Mean flooding based on observed values timestep
 - **Sensor**: `sensor.{station_name}_5_year_flood_return_period_culq5` - 5-year flood return period (20% annual probability)
 - **Sensor**: `sensor.{station_name}_50_year_flood_return_period_culq50` - 50-year flood return period (2% annual probability)
@@ -102,7 +98,7 @@ The devcontainer includes several VS Code tasks for Home Assistant development:
 
 1. Start Home Assistant
 2. Access the UI at http://localhost:8123
-3. Add the NVE Water Flow integration through the UI
+3. Add the Sildre integration through the UI
 4. Test with your API key and stations
 
 ## License
@@ -122,9 +118,9 @@ If you encounter any issues or have questions:
 3. Check the [NVE API documentation](https://hydapi.nve.no) for API-related questions
 
 
-[releases-shield]: https://img.shields.io/github/v/release/toringer/home-assistant-nve-water-flow?style=flat-square
-[releases]: https://github.com/toringer/home-assistant-nve-water-flow/releases
-[total-downloads-shield]: https://img.shields.io/github/downloads/toringer/home-assistant-nve-water-flow/total?style=flat-square
-[total-downloads]: https://github.com/toringer/home-assistant-nve-water-flow
-[latest-release-downloads-shield]: https://img.shields.io/github/downloads/toringer/home-assistant-nve-water-flow/latest/total?style=flat-square
-[latest-release-downloads]: https://github.com/toringer/home-assistant-nve-water-flow
+[releases-shield]: https://img.shields.io/github/v/release/toringer/home-assistant-sildre?style=flat-square
+[releases]: https://github.com/toringer/home-assistant-sildre/releases
+[total-downloads-shield]: https://img.shields.io/github/downloads/toringer/home-assistant-sildre/total?style=flat-square
+[total-downloads]: https://github.com/toringer/home-assistant-sildre
+[latest-release-downloads-shield]: https://img.shields.io/github/downloads/toringer/home-assistant-sildre/latest/total?style=flat-square
+[latest-release-downloads]: https://github.com/toringer/home-assistant-sildre

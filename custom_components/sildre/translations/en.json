@@ -6,7 +6,7 @@
           "api_key": "NVE API Key"
         },
         "description": "Enter your NVE Hydrological API key.",
-        "title": "NVE Water Flow Configuration"
+        "title": "Sildre Configuration"
       },
       "station": {
         "data": {
@@ -37,8 +37,8 @@
   },
   "entity": {
     "sensor": {
-      "nve_water_flow": {
-        "name": "Water flow"
+      "sildre": {
+        "name": "Sildre"
       },
       "cul_qm": {
         "name": "Mean flooding"

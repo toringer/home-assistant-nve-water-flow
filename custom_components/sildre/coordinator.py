@@ -1,4 +1,4 @@
-"""Data coordinator for NVE Water Flow integration."""
+"""Data coordinator for Sildre integration."""
 from __future__ import annotations
 
 import logging
@@ -20,7 +20,7 @@ VARIANCE_SECONDS = 30
 
 
 class NVEWaterFlowCoordinator(DataUpdateCoordinator):
-    """Coordinator for NVE Water Flow data."""
+    """Coordinator for Sildre data."""
 
     def __init__(
         self,
@@ -46,7 +46,7 @@ class NVEWaterFlowCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass,
             logging.getLogger(__name__),
-            name="nve_water_flow",
+            name="sildre",
             update_interval=update_interval,
         )
         self.api = api
@@ -88,7 +88,7 @@ class NVEWaterFlowCoordinator(DataUpdateCoordinator):
             "last_update": datetime.now().isoformat(),
         }
 
-        # Fetch water flow data
+        # Fetch sildre data
         parameter_ids = [str(series.get("parameter"))
                          for series in self.station_series_list]
         series_data = await self.api.get_series_data(self.station_id, parameter_ids)

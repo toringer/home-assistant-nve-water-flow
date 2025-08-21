@@ -1,4 +1,4 @@
-"""The NVE Water Flow integration."""
+"""The Sildre integration."""
 from __future__ import annotations
 
 import logging
@@ -19,7 +19,7 @@ PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up NVE Water Flow from a config entry."""
+    """Set up Sildre from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
     # Get configuration

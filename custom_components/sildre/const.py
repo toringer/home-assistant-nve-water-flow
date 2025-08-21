@@ -1,6 +1,6 @@
-"""Constants for the NVE Water Flow integration."""
+"""Constants for the Sildre integration."""
 
-DOMAIN = "nve_water_flow"
+DOMAIN = "sildre"
 VERSION = "1.0.0"
 
 # Configuration keys

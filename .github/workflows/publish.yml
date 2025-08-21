@@ -37,8 +37,8 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         if: ${{ github.event_name == 'push' }}
         with:
-          name: nve-water-flow
-          path: ${{ github.workspace }}/custom_components/nve_water_flow
+          name: sildre
+          path: ${{ github.workspace }}/custom_components/sildre
 
       # Pack the dir as a zip and upload to the release
       - name: 📦 ZIP Dir
@@ -47,11 +47,11 @@ jobs:
           ls -l
           cd custom_components
           ls -l
-          cd ${{ github.workspace }}/custom_components/nve_water_flow
-          zip nve_water_flow.zip -r ./
+          cd ${{ github.workspace }}/custom_components/sildre
+          zip sildre.zip -r ./
 
       - name: 📤 Upload zip to release
         uses: softprops/action-gh-release@v2
         if: ${{ github.event_name == 'release' }}
         with:
-          files: ${{ github.workspace }}/custom_components/nve_water_flow/nve_water_flow.zip
+          files: ${{ github.workspace }}/custom_components/sildre/sildre.zip

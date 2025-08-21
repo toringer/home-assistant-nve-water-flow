@@ -1,4 +1,4 @@
-"""Sensor platform for NVE Water Flow."""
+"""Sensor platform for Sildre."""
 from __future__ import annotations
 
 import logging
@@ -57,7 +57,7 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the NVE Water Flow sensor platform."""
+    """Set up the Sildre sensor platform."""
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     coordinator: NVEWaterFlowCoordinator = domain_data["coordinator"]
 
@@ -120,11 +120,11 @@ async def async_setup_entry(
 
     # The coordinator is already started in the main init
     _LOGGER.info(
-        "NVE Water Flow sensors setup completed for station %s", station_id)
+        "Sildre sensors setup completed for station %s", station_id)
 
 
 class NVEBaseSensor(CoordinatorEntity, SensorEntity):
-    """Base class for NVE Water Flow sensors."""
+    """Base class for Sildre sensors."""
 
     def __init__(
         self,

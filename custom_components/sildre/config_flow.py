@@ -1,4 +1,4 @@
-"""Config flow for NVE Water Flow integration."""
+"""Config flow for Sildre integration."""
 from __future__ import annotations
 
 import logging
@@ -23,7 +23,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for NVE Water Flow."""
+    """Handle a config flow for Sildre."""
 
     VERSION = 1
 
@@ -95,7 +95,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                         # Create the config entry with station name
                         return self.async_create_entry(
-                            title=f"NVE Water Flow - {self.station_name}",
+                            title=f"Sildre - {self.station_name}",
                             data={
                                 CONF_API_KEY: self.api_key,
                                 CONF_STATION_ID: self.station_id,

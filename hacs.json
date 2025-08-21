@@ -1,6 +1,6 @@
 {
-    "name": "NVE water flow",
+    "name": "Sildre",
     "homeassistant": "2025.1.0",
     "zip_release": true,
-    "filename": "nve_water_flow.zip"
+    "filename": "sildre.zip"
 }

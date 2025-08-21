@@ -1,6 +1,6 @@
-nve_water_flow_refresh:
-  name: Refresh NVE Water Flow Data
-  description: Manually refresh water flow data for all configured stations
+sildre_refresh:
+  name: Refresh Sildre Data
+  description: Manually refresh Sildre data for all configured stations
   fields:
     station_name:
       name: Station Name

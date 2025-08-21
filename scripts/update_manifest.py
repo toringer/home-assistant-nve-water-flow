@@ -13,14 +13,14 @@ def update_manifest():
 
     # pylint: disable=unspecified-encoding
     with open(
-        f"{os.getcwd()}/custom_components/nve_water_flow/manifest.json"
+        f"{os.getcwd()}/custom_components/sildre/manifest.json"
     ) as manifestfile:
         manifest = json.load(manifestfile)
 
     manifest["version"] = version
 
     with open(
-        f"{os.getcwd()}/custom_components/nve_water_flow/manifest.json", "w"
+        f"{os.getcwd()}/custom_components/sildre/manifest.json", "w"
     ) as manifestfile:
         manifestfile.write(json.dumps(manifest, indent=4, sort_keys=True))
 

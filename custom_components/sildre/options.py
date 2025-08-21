@@ -1,4 +1,4 @@
-"""Options flow for NVE Water Flow integration."""
+"""Options flow for Sildre integration."""
 from __future__ import annotations
 
 from typing import Any
@@ -13,7 +13,7 @@ from .const import DOMAIN
 
 
 class NVEWaterFlowOptionsFlow(config_entries.OptionsFlow):
-    """Handle NVE Water Flow options."""
+    """Handle Sildre options."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""

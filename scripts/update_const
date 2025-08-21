@@ -2,4 +2,4 @@
 
 set -e
 
-sed -i "s/VERSION =.*/VERSION = \"${1}\"/" custom_components/nve_water_flow/const.py
+sed -i "s/VERSION =.*/VERSION = \"${1}\"/" custom_components/sildre/const.py
