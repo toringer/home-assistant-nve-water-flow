@@ -9,8 +9,6 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import DOMAIN
-
 
 class SildreOptionsFlow(config_entries.OptionsFlow):
     """Handle Sildre options."""

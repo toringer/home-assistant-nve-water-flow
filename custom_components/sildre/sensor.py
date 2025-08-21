@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -23,13 +22,11 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
+    CoordinatorEntity
 )
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from .const import (
-    ATTR_CORRECTION,
     ATTR_LAST_UPDATE,
     ATTR_OBSERVATION_TIME,
     ATTR_PARAMETER_ID,
@@ -37,15 +34,10 @@ from .const import (
     ATTR_STATION_ID,
     ATTR_STATION_NAME,
     ATTR_UNIT,
-    CONF_API_KEY,
-    CONF_STATION_ID,
     DOMAIN,
-    SENSOR_LAST_UPDATE,
-    SENSOR_WATER_FLOW,
     SENSOR_CUL_QM,
     SENSOR_CUL_Q5,
-    SENSOR_CUL_Q50,
-    VERSION
+    SENSOR_CUL_Q50
 )
 from .coordinator import SildreCoordinator
 
@@ -78,7 +70,6 @@ async def async_setup_entry(
                 coordinator,
                 station_id,
                 station_name,
-                SENSOR_WATER_FLOW,
                 parameter_name,
                 unit,
                 "mdi:water",
@@ -166,7 +157,6 @@ class SildreMeasurementSensor(SildreBaseSensor):
         coordinator: SildreCoordinator,
         station_id: str,
         station_name: str,
-        sensor_type: str,
         sensor_name: str,
         unit: str,
         icon: str,
@@ -176,7 +166,6 @@ class SildreMeasurementSensor(SildreBaseSensor):
     ) -> None:
         """Initialize the measurement sensor."""
         super().__init__(coordinator, station_id, station_name)
-        self.sensor_type = sensor_type
         self.sensor_name = sensor_name
         self.unit = unit
         self.icon = icon
