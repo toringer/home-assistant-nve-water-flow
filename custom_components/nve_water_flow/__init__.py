@@ -9,7 +9,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import CONF_API_KEY, CONF_STATION_ID, CONF_STATION_NAME, DOMAIN
+from .const import CONF_API_KEY, CONF_STATION_ID, CONF_STATION_NAME, CONF_STATION_SERIES_LIST, DOMAIN
 from .nve_api import NVEAPI
 from .coordinator import NVEWaterFlowCoordinator
 
@@ -26,7 +26,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api_key = entry.data[CONF_API_KEY]
     station_id = entry.data[CONF_STATION_ID]
     station_name = entry.data.get(CONF_STATION_NAME, station_id)
-
+    station_series_list = entry.data.get(CONF_STATION_SERIES_LIST, [])
     # Create API client
     api = NVEAPI(api_key, hass)
 
@@ -43,11 +43,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         api=api,
         station_id=station_id,
         station_name=station_name,
+        station_series_list=station_series_list,
     )
 
     # Store coordinator and API client in hass data
     hass.data[DOMAIN][entry.entry_id] = {
-        "api": api,
         "coordinator": coordinator,
     }
 
@@ -64,9 +64,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         # Close API session and clean up coordinator
         if entry.entry_id in hass.data[DOMAIN]:
-            domain_data = hass.data[DOMAIN][entry.entry_id]
-            api = domain_data["api"]
-            await api.close()
             hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok

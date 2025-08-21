@@ -28,19 +28,21 @@ class NVEWaterFlowCoordinator(DataUpdateCoordinator):
         api: NVEAPI,
         station_id: str,
         station_name: str,
+        station_series_list: list[Any],
         update_interval: timedelta | None = None,
     ) -> None:
         """Initialize the coordinator."""
         # Calculate update interval with random variance to prevent API collisions
         if update_interval is None:
-            variance = timedelta(seconds=random.randint(-VARIANCE_SECONDS, VARIANCE_SECONDS))
+            variance = timedelta(
+                seconds=random.randint(-VARIANCE_SECONDS, VARIANCE_SECONDS))
             update_interval = BASE_UPDATE_INTERVAL + variance
-            
+
         _LOGGER.debug(
-            "Initializing coordinator for station %s with update interval: %s", 
+            "Initializing coordinator for station %s with update interval: %s",
             station_id, update_interval
         )
-        
+
         super().__init__(
             hass,
             logging.getLogger(__name__),
@@ -50,6 +52,8 @@ class NVEWaterFlowCoordinator(DataUpdateCoordinator):
         self.api = api
         self.station_id = station_id
         self.station_name = station_name
+        self.station_series_list = station_series_list
+        self.station_data = {}
         self._last_update: Optional[datetime] = None
 
     async def _async_update_data(self) -> Dict[str, Any]:
@@ -59,9 +63,10 @@ class NVEWaterFlowCoordinator(DataUpdateCoordinator):
         try:
             station_data = await self._fetch_station_data()
             if station_data:
-                data = {self.station_id: station_data}
+                data = station_data
             else:
-                _LOGGER.warning("No data received for station: %s", self.station_id)
+                _LOGGER.warning(
+                    "No data received for station: %s", self.station_id)
                 data = {}
 
         except Exception as err:
@@ -72,7 +77,7 @@ class NVEWaterFlowCoordinator(DataUpdateCoordinator):
 
         self._last_update = datetime.now()
         _LOGGER.debug("Data update completed for station: %s", self.station_id)
-
+        self.station_data = station_data
         return data
 
     async def _fetch_station_data(self) -> Optional[Dict[str, Any]]:
@@ -84,9 +89,11 @@ class NVEWaterFlowCoordinator(DataUpdateCoordinator):
         }
 
         # Fetch water flow data
-        water_flow_data = await self.api.get_water_flow_data(self.station_id)
-        if water_flow_data:
-            station_data["water_flow_data"] = water_flow_data
+        parameter_ids = [str(series.get("parameter"))
+                         for series in self.station_series_list]
+        series_data = await self.api.get_series_data(self.station_id, parameter_ids)
+        if series_data:
+            station_data["series_data"] = series_data
 
         # Fetch station info (includes culQ data)
         station_info = await self.api.get_station_info(self.station_id)
@@ -109,11 +116,17 @@ class NVEWaterFlowCoordinator(DataUpdateCoordinator):
 
         return None
 
-    def get_station_data(self) -> Optional[Dict[str, Any]]:
-        """Get data for the station from the coordinator."""
-        if not self.data or self.station_id not in self.data:
+    def get_data_for_parameter(self, parameter_id: str) -> Any:
+        """Get data for a specific parameter."""
+        if not self.station_data:
             return None
-        return self.data[self.station_id]
+
+        series_data = self.station_data.get("series_data", [])
+        for serie in series_data:
+            if str(serie.get("parameter")) == parameter_id:
+                return serie
+
+        return None
 
     @property
     def last_update(self) -> Optional[datetime]:

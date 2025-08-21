@@ -14,6 +14,7 @@ from .const import (
     CONF_API_KEY,
     CONF_STATION_ID,
     CONF_STATION_NAME,
+    CONF_STATION_SERIES_LIST,
     DOMAIN,
 )
 from .nve_api import NVEAPI, InvalidAPIKey, CannotConnect
@@ -31,6 +32,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.api_key: str | None = None
         self.station_id: str | None = None
         self.station_name: str | None = None
+        self.series_list: list[Any] | None = None
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -85,10 +87,12 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     else:
                         # Extract station name from station info
                         self.station_id = station_id
-                        self.station_name = station_info.get("stationName", station_id)
-                        
-                        _LOGGER.info("Validated station %s: %s", station_id, self.station_name)
-                        
+                        self.station_name = station_info.get("station_name")
+                        self.series_list = station_info.get("series_list", [])
+
+                        _LOGGER.info("Validated station %s: %s with %d series",
+                                     station_id, self.station_name, len(self.series_list))
+
                         # Create the config entry with station name
                         return self.async_create_entry(
                             title=f"NVE Water Flow - {self.station_name}",
@@ -96,6 +100,7 @@ class NVEWaterFlowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 CONF_API_KEY: self.api_key,
                                 CONF_STATION_ID: self.station_id,
                                 CONF_STATION_NAME: self.station_name,
+                                CONF_STATION_SERIES_LIST: self.series_list,
                             },
                         )
                 except InvalidAPIKey:

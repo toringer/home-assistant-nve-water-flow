@@ -47,7 +47,8 @@ ehthumbs.db
 Thumbs.db
 
 # Home Assistant
-config/
+config/*
+!config/configuration.yaml
 *.log
 
 # Testing

@@ -14,6 +14,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
     UnitOfVolumeFlowRate,
+    UnitOfTemperature,
+    UnitOfLength,
+    UnitOfElectricPotential,
+    UnitOfSpeed,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -27,6 +31,8 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from .const import (
     ATTR_CORRECTION,
     ATTR_LAST_UPDATE,
+    ATTR_OBSERVATION_TIME,
+    ATTR_PARAMETER_ID,
     ATTR_PARAMETER_NAME,
     ATTR_STATION_ID,
     ATTR_STATION_NAME,
@@ -58,25 +64,29 @@ async def async_setup_entry(
     # Get station info from coordinator
     station_id = coordinator.station_id
     station_name = coordinator.station_name
-
+    station_series_list = coordinator.station_series_list
     # Create sensors for the station
     entities = []
 
-    # Create water flow sensor
-    entities.append(
-        NVEMeasurementSensor(
-            coordinator,
-            station_id,
-            station_name,
-            SENSOR_WATER_FLOW,
-            "Water Flow",
-            UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND,
-            "mdi:water",
-            SensorDeviceClass.VOLUME_FLOW_RATE,
-            SensorStateClass.MEASUREMENT,
-            "1001",  # Default water flow parameter ID
+    for parameter in station_series_list:
+        parameter_id = str(parameter.get("parameter"))
+        parameter_name = parameter.get("parameter_name")
+        unit = parameter.get("unit")
+
+        entities.append(
+            NVEMeasurementSensor(
+                coordinator,
+                station_id,
+                station_name,
+                SENSOR_WATER_FLOW,
+                parameter_name,
+                unit,
+                "mdi:water",
+                SensorDeviceClass.VOLUME_FLOW_RATE,
+                SensorStateClass.MEASUREMENT,
+                parameter_id,
+            )
         )
-    )
 
     # Create culQ sensors (these are from station info, not parameters)
     entities.append(
@@ -106,11 +116,11 @@ async def async_setup_entry(
         )
     )
 
-    async_add_entities(entities)
+    async_add_entities(entities, update_before_add=True)
 
-    # Start the coordinator if not already started
-    if not coordinator.data:
-        await coordinator.async_config_entry_first_refresh()
+    # The coordinator is already started in the main init
+    _LOGGER.info(
+        "NVE Water Flow sensors setup completed for station %s", station_id)
 
 
 class NVEBaseSensor(CoordinatorEntity, SensorEntity):
@@ -135,7 +145,7 @@ class NVEBaseSensor(CoordinatorEntity, SensorEntity):
         """Return device information."""
         return DeviceInfo(
             identifiers={(DOMAIN, self.station_id)},
-            name=f"NVE Station {self.station_name}",
+            name=self.station_name,
             manufacturer="Norwegian Water Resources and Energy Directorate",
             model="Hydrological Monitoring Station",
         )
@@ -144,10 +154,7 @@ class NVEBaseSensor(CoordinatorEntity, SensorEntity):
     def available(self) -> bool:
         """Return True if entity is available."""
         return (
-            super().available
-            and self.coordinator.data is not None
-            and self.station_id in self.coordinator.data
-            and self.coordinator.data[self.station_id].get("water_flow_data") is not None
+            super().available and self.coordinator.data is not None
         )
 
 
@@ -178,44 +185,74 @@ class NVEMeasurementSensor(NVEBaseSensor):
         self.parameter_id = parameter_id
 
         # Set unique ID
-        self._attr_unique_id = f"{station_id}_{sensor_type}"
+        self._attr_unique_id = f"{station_id}_{parameter_id}"
 
         # Set name
         self._attr_name = f"{station_name} {sensor_name}"
 
         # Set device class and state class
-        self._attr_device_class = device_class
+        if self.unit == "m³/s":
+            self._attr_device_class = SensorDeviceClass.VOLUME_FLOW_RATE
+            self._attr_native_unit_of_measurement = UnitOfVolumeFlowRate.CUBIC_METERS_PER_SECOND
+        elif self.unit == "°C":
+            self._attr_device_class = SensorDeviceClass.TEMPERATURE
+            self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
+        elif self.unit == "m":
+            self._attr_device_class = SensorDeviceClass.DISTANCE
+            self._attr_native_unit_of_measurement = UnitOfLength.METERS
+        elif self.unit == "Volt":
+            self._attr_device_class = SensorDeviceClass.VOLTAGE
+            self._attr_native_unit_of_measurement = UnitOfElectricPotential.VOLT
+        elif self.unit == "m/s":
+            self._attr_device_class = SensorDeviceClass.SPEED
+            self._attr_native_unit_of_measurement = UnitOfSpeed.METERS_PER_SECOND
+        elif self.unit == "mm":
+            self._attr_device_class = SensorDeviceClass.PRECIPITATION
+            self._attr_native_unit_of_measurement = UnitOfLength.MILLIMETERS
+        else:
+            self._attr_device_class = SensorDeviceClass.GENERIC
+            self._attr_native_unit_of_measurement = self.unit
+
         self._attr_state_class = state_class
-        self._attr_native_unit_of_measurement = unit
+
         self._attr_icon = icon
 
     @property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
-        if not self.coordinator.data or self.station_id not in self.coordinator.data:
+        if not self.coordinator.data:
+            _LOGGER.debug("No coordinator data for sensor %s",
+                          self._attr_unique_id)
             return None
 
-        station_data = self.coordinator.data[self.station_id]
-        water_flow_data = station_data.get("water_flow_data", {})
-        return water_flow_data.get("value")
+        parameter = self.coordinator.get_data_for_parameter(self.parameter_id)
+        if not parameter:
+            _LOGGER.debug("No parameter data found for parameter %s for sensor %s",
+                          self.parameter_id, self._attr_unique_id)
+            return None
+
+        latest_value = parameter.get("value")
+        _LOGGER.debug("Sensor %s found value: %s",
+                      self._attr_unique_id, latest_value)
+        return latest_value
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return entity specific state attributes."""
-        if not self.coordinator.data or self.station_id not in self.coordinator.data:
+        if not self.coordinator.data:
             return {}
 
-        station_data = self.coordinator.data[self.station_id]
-        water_flow_data = station_data.get("water_flow_data", {})
+        parameter = self.coordinator.get_data_for_parameter(self.parameter_id)
+        station_data = self.coordinator.data
         attrs = {
             ATTR_ATTRIBUTION: "Data provided by NVE Hydrological API",
-            ATTR_STATION_NAME: water_flow_data.get("station_name"),
-            ATTR_STATION_ID: water_flow_data.get("station_id"),
-            ATTR_PARAMETER_NAME: water_flow_data.get("parameter_name"),
-            ATTR_UNIT: water_flow_data.get("unit"),
-            "quality": water_flow_data.get("quality"),
-            ATTR_CORRECTION: water_flow_data.get("correction"),
-            "method": water_flow_data.get("method"),
+            ATTR_STATION_NAME: station_data.get("station_name"),
+            ATTR_STATION_ID: station_data.get("station_id"),
+            ATTR_PARAMETER_NAME: self.sensor_name,
+            ATTR_PARAMETER_ID: self.parameter_id,
+            ATTR_UNIT: self.unit,
+            ATTR_LAST_UPDATE: station_data.get("last_update"),
+            ATTR_OBSERVATION_TIME: parameter.get("time")
         }
         return attrs
 
@@ -256,10 +293,10 @@ class NVECulQSensor(NVEBaseSensor):
     @property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
-        if not self.coordinator.data or self.station_id not in self.coordinator.data:
+        if not self.coordinator.data:
             return None
 
-        station_data = self.coordinator.data[self.station_id]
+        station_data = self.coordinator.data
         culq_data = station_data.get("culq_data", {})
 
         # Return the appropriate culQ value based on sensor type
@@ -275,10 +312,10 @@ class NVECulQSensor(NVEBaseSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return entity specific state attributes."""
-        if not self.coordinator.data or self.station_id not in self.coordinator.data:
+        if not self.coordinator.data:
             return {}
 
-        station_data = self.coordinator.data[self.station_id]
+        station_data = self.coordinator.data
 
         attrs = {
             ATTR_ATTRIBUTION: "Data provided by NVE Hydrological API",

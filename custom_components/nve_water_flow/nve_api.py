@@ -8,7 +8,7 @@ import aiohttp
 
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import NVE_API_BASE_URL, VERSION, WATER_FLOW_PARAMETER_ID
+from .const import NVE_API_BASE_URL, VERSION
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -56,8 +56,8 @@ class NVEAPI:
         except aiohttp.ClientError as err:
             raise CannotConnect(f"Failed to connect to NVE API: {err}")
 
-    async def get_water_flow_data(
-        self, station_id: str, resolution_time: int = 0
+    async def get_series_data(
+        self, station_id: str, parameters: list[str], resolution_time: int = 0
     ) -> Optional[Dict[str, Any]]:
         """Get water flow data for a specific station."""
         _LOGGER.debug("Fetching water flow data for station %s", station_id)
@@ -65,7 +65,7 @@ class NVEAPI:
             session = await self._get_session()
             params = {
                 "StationId": station_id,
-                "Parameter": WATER_FLOW_PARAMETER_ID,
+                "Parameter": ",".join(parameters),
                 "ResolutionTime": resolution_time,
             }
 
@@ -79,35 +79,22 @@ class NVEAPI:
 
                 data = await response.json()
                 series_data = data.get("data", [])
+                retval = []
+                for series in series_data:
+                    observations = series.get("observations", [])
+                    if not observations:
+                        _LOGGER.warning(
+                            "No observations found for parameter %s for station: %s", series.get("parameter"), station_id)
+                        continue
 
-                if not series_data:
-                    _LOGGER.warning(
-                        "No water flow data found for station: %s", station_id)
-                    return None
-
-                # Get the first (and should be only) series
-                series = series_data[0]
-                observations = series.get("observations", [])
-
-                if not observations:
-                    _LOGGER.warning(
-                        "No observations found for station: %s", station_id)
-                    return None
-
-                # Get the latest observation
-                latest_observation = observations[-1]
-
-                return {
-                    "station_id": station_id,
-                    "station_name": series.get("stationName", "Unknown"),
-                    "parameter_name": series.get("parameterName", "Unknown"),
-                    "unit": series.get("unit", "Unknown"),
-                    "value": latest_observation.get("value"),
-                    "time": latest_observation.get("time"),
-                    "quality": latest_observation.get("quality"),
-                    "correction": latest_observation.get("correction"),
-                    "method": series.get("method", "Unknown"),
-                }
+                    retval.append({
+                        "parameter": series.get("parameter"),
+                        "time": observations[-1].get("time"),
+                        "value": observations[-1].get("value"),
+                        "correction": observations[-1].get("correction"),
+                        "quality": observations[-1].get("quality")
+                    })
+                return retval
 
         except Exception as err:
             _LOGGER.error(
@@ -134,12 +121,28 @@ class NVEAPI:
 
                 data = await response.json()
                 stations = data.get("data", [])
-
                 if not stations:
                     return None
 
                 station = stations[0]
-                return station
+                series_list_raw = stations[0].get("seriesList", [])
+                series_list = []
+                for series in series_list_raw:
+                    series_list.append({
+                        "parameter_name": series.get("parameterName"),
+                        "parameter": str(series.get("parameter")),
+                        "unit": series.get("unit")
+                    })
+
+                retval = {
+                    "station_id": station.get("stationId"),
+                    "station_name": station.get("stationName"),
+                    "culQm": station.get("culQm"),
+                    "culQ5": station.get("culQ5"),
+                    "culQ50": station.get("culQ50"),
+                    "series_list": series_list,
+                }
+                return retval
 
         except InvalidAPIKey:
             # Re-raise InvalidAPIKey exceptions
