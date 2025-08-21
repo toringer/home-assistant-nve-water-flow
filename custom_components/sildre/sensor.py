@@ -139,6 +139,7 @@ class SildreBaseSensor(CoordinatorEntity, SensorEntity):
             name=self.station_name,
             manufacturer="Norwegian Water Resources and Energy Directorate",
             model="Hydrological Monitoring Station",
+            configuration_url=f"https://sildre.nve.no/station/{self.station_id}",
         )
 
     @property
