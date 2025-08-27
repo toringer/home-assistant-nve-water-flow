@@ -131,7 +131,8 @@ class NVEAPI:
                     series_list.append({
                         "parameter_name": series.get("parameterName"),
                         "parameter": str(series.get("parameter")),
-                        "unit": series.get("unit")
+                        "unit": series.get("unit"),
+                        "version_no": series.get("versionNo")
                     })
 
                 retval = {

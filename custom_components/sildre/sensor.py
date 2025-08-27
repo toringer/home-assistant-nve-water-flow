@@ -34,6 +34,7 @@ from .const import (
     ATTR_STATION_ID,
     ATTR_STATION_NAME,
     ATTR_UNIT,
+    ATTR_VERSION_NO,
     DOMAIN,
     SENSOR_CUL_QM,
     SENSOR_CUL_Q5,
@@ -64,6 +65,7 @@ async def async_setup_entry(
         parameter_id = str(parameter.get("parameter"))
         parameter_name = parameter.get("parameter_name")
         unit = parameter.get("unit")
+        version_no = parameter.get("version_no")
 
         entities.append(
             SildreMeasurementSensor(
@@ -76,6 +78,7 @@ async def async_setup_entry(
                 SensorDeviceClass.VOLUME_FLOW_RATE,
                 SensorStateClass.MEASUREMENT,
                 parameter_id,
+                version_no
             )
         )
 
@@ -164,6 +167,7 @@ class SildreMeasurementSensor(SildreBaseSensor):
         device_class: SensorDeviceClass | None = None,
         state_class: SensorStateClass = SensorStateClass.MEASUREMENT,
         parameter_id: str | None = None,
+        version_no: str | None = None,
     ) -> None:
         """Initialize the measurement sensor."""
         super().__init__(coordinator, station_id, station_name)
@@ -173,9 +177,10 @@ class SildreMeasurementSensor(SildreBaseSensor):
         self.device_class = device_class
         self.state_class = state_class
         self.parameter_id = parameter_id
+        self.version_no = version_no
 
         # Set unique ID
-        self._attr_unique_id = f"{station_id}_{parameter_id}"
+        self._attr_unique_id = f"{station_id}_{parameter_id}_{self.version_no}"
 
         # Set name
         self._attr_name = f"{station_name} {sensor_name}"
@@ -236,13 +241,14 @@ class SildreMeasurementSensor(SildreBaseSensor):
         station_data = self.coordinator.data
         attrs = {
             ATTR_ATTRIBUTION: "Data provided by NVE Hydrological API",
-            ATTR_STATION_NAME: station_data.get("station_name"),
-            ATTR_STATION_ID: station_data.get("station_id"),
-            ATTR_PARAMETER_NAME: self.sensor_name,
-            ATTR_PARAMETER_ID: self.parameter_id,
-            ATTR_UNIT: self.unit,
             ATTR_LAST_UPDATE: station_data.get("last_update"),
-            ATTR_OBSERVATION_TIME: parameter.get("time")
+            ATTR_OBSERVATION_TIME: parameter.get("time"),
+            ATTR_PARAMETER_ID: self.parameter_id,
+            ATTR_PARAMETER_NAME: self.sensor_name,
+            ATTR_STATION_ID: station_data.get("station_id"),
+            ATTR_STATION_NAME: station_data.get("station_name"),
+            ATTR_UNIT: self.unit,
+            ATTR_VERSION_NO: self.version_no,
         }
         return attrs
 
