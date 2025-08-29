@@ -8,7 +8,7 @@
 
 # Home Assistant Sildre Component
 
-A custom Home Assistant component for monitoring data from [Norwegian Water Resources and Energy Directorate (NVE)](https://www.nve.no/) stations using their Hydrological API.
+A custom Home Assistant component for monitoring water-stage, discharge, water temperature and other hydrological data using the [Norwegian Water Resources and Energy Directorate (NVE)](https://www.nve.no/) hydrological API.
 
 ## Features
 
